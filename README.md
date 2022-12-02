@@ -18,7 +18,7 @@
 
 2.点击“Get from VCS”
 
-3.URL填https://github.com/Abjust/2kbot.git
+3.URL填https://github.com/Abjust/2kbot-java.git
 
 4.点击克隆（Clone）
 
