@@ -6,13 +6,11 @@
 ## 具体要求：
 1.[Mirai Console Loader](https://github.com/iTXTech/mirai-console-loader)
 
-2.[mirai-api-http](https://github.com/project-mirai/mirai-api-http)
+2.[IntelliJ IDEA](https://www.jetbrains.com/idea/download/other.html)（请安装Community Edition 2022.2.4）
 
-3.[IntelliJ IDEA](https://www.jetbrains.com/idea/download/other.html)（请安装Community Edition 2022.2.4）
+3.[MySQL Server](https://dev.mysql.com/downloads/installer/)
 
-4.[MySQL Server](https://dev.mysql.com/downloads/installer/)
-
-5.[Mirai Console IntelliJ](https://plugins.jetbrains.com/plugin/15094-mirai-console)
+4.[Mirai Console IntelliJ](https://plugins.jetbrains.com/plugin/15094-mirai-console)
 
 ## 如何构建
 
