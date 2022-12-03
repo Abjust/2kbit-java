@@ -6,7 +6,7 @@
 ## 具体要求：
 1.[Mirai Console Loader](https://github.com/iTXTech/mirai-console-loader)
 
-2.[IntelliJ IDEA](https://www.jetbrains.com/idea/download/other.html)（请安装Community Edition 2022.2.4）
+2.[IntelliJ IDEA](https://www.jetbrains.com/idea/download/other.html)（建议安装Community Edition 2022.2.4，暂时**不要**安装2022.3）
 
 3.[MySQL Server](https://dev.mysql.com/downloads/installer/)
 
