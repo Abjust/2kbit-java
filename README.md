@@ -16,12 +16,12 @@
 
 1.打开IntelliJ IDEA
 
-2.点击“Get from VCS”
+2.点击“从 VCS 获取”（Get from VCS）
 
-3.URL填https://github.com/Abjust/2kbot-kotlin.git
+3.URL填https://github.com/Abjust/2kbot-java.git
 
 4.点击克隆（Clone）
 
 ## 注意事项
 
-因2kbot-java使用到的依赖库执行**AGPLv3**开源协议，按照该开源协议的要求，2kbot-java也将同步执行；所有将2kbot-java代码片段投入线上使用的项目，都将需要**开源**并执行**AGPLv3**协议（参照该开源协议的“**网络使用即分发**”原则），谢谢配合！
+因2kbot Java Edition使用到的依赖库执行**AGPLv3**开源协议，按照该开源协议的要求，2kbot Java Edition也将同步执行；所有将2kbot Java Edition代码片段投入线上使用的项目，都将需要**开源**并执行**AGPLv3**协议（参照该开源协议的“**网络使用即分发**”原则），谢谢配合！
