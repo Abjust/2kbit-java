@@ -1,7 +1,7 @@
-# 2kbot-java
+# 2kbot Java Edition
 屎山代码，还是别用为好
 
-这是**2kbot**的**Java**分支版本，仅用于**研究参考用途**，**不建议**投入生产环境使用！
+这是**2kbot**移植到**Java**的版本，仅用于**研究参考用途**，**不建议**投入生产环境使用！
 
 ## 具体要求：
 1.[Mirai Console Loader](https://github.com/iTXTech/mirai-console-loader)
