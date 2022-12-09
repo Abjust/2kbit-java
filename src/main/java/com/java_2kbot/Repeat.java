@@ -44,7 +44,7 @@ public class Repeat {
                 try {
                     StringBuilder results = new StringBuilder();
                     if ((Global.ignores == null || !Global.ignores.contains(String.format("%s_%s", group, executor)) && (Global.g_ignores == null || !Global.g_ignores.contains(Long.toString(executor))))) {
-                        for (int i = 1; i < results.length(); i++) {
+                        for (int i = 1; i < result.length; i++) {
                             if (i == 1) {
                                 results = new StringBuilder(result[i]);
                             } else {
@@ -73,9 +73,9 @@ public class Repeat {
             }
         }
         // 主动复读
-        else if ((Global.ignores == null || !Global.ignores.contains(String.format("%s_%s", group, executor)) && (Global.g_ignores == null || !Global.g_ignores.contains(Long.toString(executor))))) {
-            for (int i = 1; i < repeatwords.length; i++) {
-                if (repeatwords[i].equals(messageChain.contentToString())) {
+        else if ((executor != Global.bot_qq && Global.ignores == null || !Global.ignores.contains(String.format("%s_%s", group, executor)) && (Global.g_ignores == null || !Global.g_ignores.contains(Long.toString(executor))))) {
+            for (String item : repeatwords) {
+                if (item.equals(messageChain.contentToString())) {
                     Global.time_now = Instant.now().getEpochSecond();
                     try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
                         Statement cmd = msc.createStatement();
@@ -92,7 +92,12 @@ public class Repeat {
                                 if (Global.time_now - rs.getLong("last_repeat") <= Global.repeat_interval) {
                                     if (rs.getInt("repeat_count") <= Global.repeat_threshold) {
                                         cmd.executeUpdate(String.format("UPDATE `%s`.`repeatctrl` SET last_repeat = %s, repeat_count = %s WHERE qid = %s AND gid = %s;", Global.database_name, Global.time_now, rs.getInt("repeat_count") + 1, executor, group));
-                                        Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(messageChain.contentToString());
+                                        try {
+                                            Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(messageChain.contentToString());
+                                        } catch (Exception e1) {
+                                            System.out.println("群消息发送失败");
+                                        }
+                                        break;
                                     } else {
                                         MessageChain messageChain1 = new MessageChainBuilder()
                                                 .append(new At(executor))
@@ -103,10 +108,16 @@ public class Repeat {
                                         } catch (Exception e1) {
                                             System.out.println("群消息发送失败");
                                         }
+                                        break;
                                     }
                                 } else {
                                     cmd.executeUpdate(String.format("UPDATE `%s`.`repeatctrl` SET repeat_count = 1, last_repeat = %s WHERE qid = %s AND gid = %s;", Global.database_name, Global.time_now, executor, group));
-                                    Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(messageChain.contentToString());
+                                    try {
+                                        Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(messageChain.contentToString());
+                                    } catch (Exception e1) {
+                                        System.out.println("群消息发送失败");
+                                    }
+                                    break;
                                 }
                             }
                         }

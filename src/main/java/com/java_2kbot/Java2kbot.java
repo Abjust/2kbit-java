@@ -73,5 +73,7 @@ public final class Java2kbot extends JavaPlugin {
         getLogger().info("2kbot-java已加载！");
         // 注册监听器
         GlobalEventChannel.INSTANCE.registerListenerHost(new BotMain());
+        // 运行面包厂生产任务
+        BreadFactory.BreadProduce();
     }
 }

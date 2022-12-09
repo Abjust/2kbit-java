@@ -87,11 +87,11 @@ public class Help {
             if (messageChain.contentToString().startsWith("!help")) {
                 String[] result = messageChain.contentToString().split(" ");
                 if (result.length == 2) {
-                    for (int i = 0; i < indexs.size(); i++) {
+                    for (String q : indexs) {
                         try {
-                            if (result[1].equals(indexs.get(i))) {
+                            if (result[1].equals(q)) {
                                 try {
-                                    Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(contents.get(i));
+                                    Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(contents.get(indexs.indexOf(q)));
                                 } catch (Exception ex) {
                                     System.out.println("帮助消息发送失败");
                                 }

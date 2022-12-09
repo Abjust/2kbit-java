@@ -75,10 +75,10 @@ public class MentalHealth {
                 System.out.println("群消息发送失败");
             }
         }
-        for (int i = 0; i < disorders.size(); i++) {
-            if (messageChain.contentToString().equals(disorders.get(i))) {
+        for (String q : disorders) {
+            if (messageChain.contentToString().equals(q)) {
                 try {
-                    Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(explanations.get(i));
+                    Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(explanations.get(disorders.indexOf(q)));
                 } catch (Exception ex) {
                     System.out.println("群消息发送失败");
                 }
@@ -134,10 +134,10 @@ public class MentalHealth {
             } catch (Exception ex) {
                 System.out.println("群消息发送失败");
             }
-            for (int i = 0; i < scales.size(); i++) {
-                if (messageChain.contentToString().toUpperCase().equals(scales.get(i))) {
+            for (String q : scales) {
+                if (messageChain.contentToString().toUpperCase().equals(q)) {
                     try {
-                        Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(links.get(i));
+                        Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(links.get(scales.indexOf(q)));
                     } catch (Exception ex) {
                         System.out.println("群消息发送失败");
                     }

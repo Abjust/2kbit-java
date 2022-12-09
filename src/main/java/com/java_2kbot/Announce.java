@@ -21,20 +21,18 @@ public class Announce {
     public static void Execute(long executor, long group, MessageChain messageChain) {
         String[] result = messageChain.contentToString().split(" ");
         ContactList<Group> groups = Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroups());
-        Group group_id;
         if (executor == Global.owner_qq) {
             if (result.length > 1) {
                 try {
                     StringBuilder results = new StringBuilder();
-                    for (int i = 1; i < results.length(); i++) {
+                    for (int i = 1; i < result.length; i++) {
                         if (i == 1) {
                             results = new StringBuilder(result[i]);
                         } else {
                             results.append(" ").append(result[i]);
                         }
                     }
-                    for (int i = 0; i < groups.size(); i++) {
-                        group_id = (Group) groups.toArray()[i];
+                    for (Group group_id : groups) {
                         try {
                             Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group_id.getId())).sendMessage(String.valueOf(results));
                         } catch (Exception e) {

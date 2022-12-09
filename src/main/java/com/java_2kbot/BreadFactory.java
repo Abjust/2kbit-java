@@ -48,12 +48,14 @@ public class BreadFactory {
                                 cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = %s", Global.database_name, group_id));
                                 rs = cmd.executeQuery();
                                 Statement cmd1 = msc.createStatement();
-                                if (rs.getInt("breads") + random < maxstorage) {
-                                    cmd1.executeUpdate(String.format("UPDATE bread SET breads = %s WHERE gid = %s;", rs.getInt("breads") + random, group_id));
-                                } else if (rs.getInt("breads") + random >= maxstorage) {
-                                    cmd1.executeUpdate(String.format("UPDATE bread SET breads = %s WHERE gid = %s;", maxstorage, group_id));
+                                while (rs.next()) {
+                                    if (rs.getInt("breads") + random < maxstorage) {
+                                        cmd1.executeUpdate(String.format("UPDATE `%s`.`bread` SET breads = %s WHERE gid = %s;", Global.database_name, rs.getInt("breads") + random, group_id));
+                                    } else if (rs.getInt("breads") + random >= maxstorage) {
+                                        cmd1.executeUpdate(String.format("UPDATE `%s`.`bread` SET breads = %s WHERE gid = %s;", Global.database_name, maxstorage, group_id));
+                                    }
                                 }
-                                cmd1.executeUpdate(String.format("UPDATE bread SET last_produce = %s WHERE gid = %s;", Instant.now().getEpochSecond(), group_id));
+                                cmd1.executeUpdate(String.format("UPDATE `%s`.`bread` SET last_produce = %s WHERE gid = %s;", Global.database_name, Instant.now().getEpochSecond(), group_id));
                             }
                         }
                     }
