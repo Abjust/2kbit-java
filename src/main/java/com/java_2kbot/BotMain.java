@@ -720,7 +720,7 @@ public class BotMain extends SimpleListenerHost {
             Random r = new Random();
             int random = r.nextInt(splashes.size());
             try {
-                event.getGroup().sendMessage(String.format("机器人版本：1.0.2-je\n上次更新日期：2022/12/9\n更新内容：再次尝试优化了面包厂生产模块\n---------\n%s", splashes.get(random)));
+                event.getGroup().sendMessage(String.format("机器人版本：1.0.3-je\n上次更新日期：2022/12/9\n更新内容：改正了指令格式\n---------\n%s", splashes.get(random)));
             } catch (Exception e) {
                 System.out.println("群消息发送失败");
             }

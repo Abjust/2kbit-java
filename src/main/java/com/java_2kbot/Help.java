@@ -13,7 +13,6 @@ package com.java_2kbot;
 
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.message.data.MessageChain;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -31,98 +30,99 @@ public class Help {
                         5.量表测试
                         6.面包厂功能
                         7.获取源码
-                        详情请用/help指令
+                        详情请用!help指令
                         """);
             } catch (Exception ex) {
                 System.out.println("菜单消息发送失败");
             }
-            // 帮助
-            List<String> indexs = new ArrayList<>() {
-                {
-                    add("1");
-                    add("2");
-                    add("3");
-                    add("4");
-                    add("5");
-                    add("6");
-                    add("7");
-                }
-            };
-            List<String> contents = new ArrayList<>() {
-                {
-                    add("""
-                            群管功能
-                            禁言：/mute <QQ号或at> [时间] （以分钟算）
-                            解禁：/unmute <QQ号或at>
-                            踢出：/kick <QQ号或at>
-                            加黑：/block <QQ号或at>
-                            解黑：/unblock <QQ号或at>
-                            屏蔽消息（加灰）：/ignore <QQ号或at>
-                            给予管理员：/op <QQ号或at>
-                            剥夺管理员：/deop <QQ号或at>
-                            清理群内所有黑名单人员：/purge
-                            从Hanbot同步黑名单：/sync
-                            将黑名单反向同步给Hanbot：/rsync
-                            合并黑名单：/merge
-                            （上述功能都需要机器人管理员）
-                            注：在block、unblock、ignore、op、deop前加上g表示应用全局（例子：/gblock）
-                            """);
-                    add("该指令用于复述文本\n用法：/echo <文本>");
-                    add("该指令用于叫人\n用法：/call <QQ号或at> [次数]");
-                    add("发送“精神疾病”或者“心理疾病”并按照后续出现的选项发送相应文字即可获得科普文本");
-                    add("发送“量表”或者“测试”并按照后续出现的选项发送相应文字即可获得链接");
-                    add("""
-                            面包厂功能
-                            建造面包厂（初始化）：/build_factory
-                            给2kbot面包： /givebread <数量>
-                            向2kbot要面包：/getbread <数量>
-                            查询面包库存：/querybread
-                            改变多样化生产状态：/bread_diversity <on/off>
-                            升级面包厂：/upgrade_factory
-                            升级库存（满级后）：/upgrade_storage
-                            """);
-                    add("https://github.com/Abjust/2kbot-java");
-                }
-            };
-            if (messageChain.contentToString().startsWith("!help")) {
-                String[] result = messageChain.contentToString().split(" ");
-                if (result.length == 2) {
-                    for (String q : indexs) {
-                        try {
-                            if (result[1].equals(q)) {
-                                try {
-                                    Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(contents.get(indexs.indexOf(q)));
-                                } catch (Exception ex) {
-                                    System.out.println("帮助消息发送失败");
-                                }
-                            } else if (Integer.parseInt(result[1]) > indexs.size()) {
-                                try {
-                                    Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("未找到相关帮助");
-                                } catch (Exception ex) {
-                                    System.out.println("帮助消息发送失败");
-                                }
-                            }
-                        } catch (Exception ex) {
+        }
+        // 帮助
+        List<String> indexs = new ArrayList<>() {
+            {
+                add("1");
+                add("2");
+                add("3");
+                add("4");
+                add("5");
+                add("6");
+                add("7");
+            }
+        };
+        List<String> contents = new ArrayList<>() {
+            {
+                add("""
+                        群管功能
+                        禁言：!mute <QQ号或at> [时间] （以分钟算）
+                        解禁：!unmute <QQ号或at>
+                        踢出：!kick <QQ号或at>
+                        加黑：!block <QQ号或at>
+                        解黑：!unblock <QQ号或at>
+                        屏蔽消息（加灰）：!ignore <QQ号或at>
+                        给予管理员：!op <QQ号或at>
+                        剥夺管理员：!deop <QQ号或at>
+                        清理群内所有黑名单人员：!purge
+                        从Hanbot同步黑名单：!sync
+                        将黑名单反向同步给Hanbot：!rsync
+                        合并黑名单：!merge
+                        （上述功能都需要机器人管理员）
+                        注：在block、unblock、ignore、op、deop前加上g表示应用全局（例子：!gblock）
+                        """);
+                add("该指令用于复述文本\n用法：!echo <文本>");
+                add("该指令用于叫人\n用法：!call <QQ号或at> [次数]");
+                add("发送“精神疾病”或者“心理疾病”并按照后续出现的选项发送相应文字即可获得科普文本");
+                add("发送“量表”或者“测试”并按照后续出现的选项发送相应文字即可获得链接");
+                add("""
+                        面包厂功能
+                        建造面包厂（初始化）：!build_factory
+                        给2kbot面包： !givebread <数量>
+                        向2kbot要面包：!getbread <数量>
+                        查询面包库存：!querybread
+                        改变多样化生产状态：!bread_diversity <on/off>
+                        升级面包厂：!upgrade_factory
+                        升级库存（满级后）：!upgrade_storage
+                        """);
+                add("https://github.com/Abjust/2kbot-java");
+            }
+        };
+        if (messageChain.contentToString().startsWith("!help")) {
+            String[] result = messageChain.contentToString().split(" ");
+            System.out.println(result.length);
+            if (result.length == 2) {
+                for (String q : indexs) {
+                    try {
+                        if (result[1].equals(q)) {
                             try {
-                                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("请写数字，不要写别的好吗？");
-                            } catch (Exception ex1) {
+                                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(contents.get(indexs.indexOf(q)));
+                            } catch (Exception ex) {
                                 System.out.println("帮助消息发送失败");
                             }
+                        } else if (Integer.parseInt(result[1]) > indexs.size()) {
+                            try {
+                                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("未找到相关帮助");
+                            } catch (Exception ex) {
+                                System.out.println("帮助消息发送失败");
+                            }
+                        }
+                    } catch (Exception ex) {
+                        try {
+                            Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("请写数字，不要写别的好吗？");
+                        } catch (Exception ex1) {
+                            System.out.println("帮助消息发送失败");
                         }
                     }
                 }
             } else if (messageChain.contentToString().equals("!help")) {
                 try {
                     Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("""
-                            目前有对于以下功能的帮助文档：
-                            [1]群管功能
-                            [2]/echo
-                            [3]/call
-                            [4]精神心理疾病科普
-                            [5]量表测试
-                            [6]面包厂
-                            [7]获取源码
-                            """);
+目前有对于以下功能的帮助文档：
+[1]群管功能
+[2]!echo
+[3]!call
+[4]精神心理疾病科普
+[5]量表测试
+[6]面包厂
+[7]获取源码
+""");
                 } catch (Exception ex1) {
                     System.out.println("帮助消息发送失败");
                 }

@@ -27,7 +27,6 @@ public class Global {
     public static final int repeat_threshold = 5;
     public static final int repeat_interval = 10;
     public static final int breadfactory_maxlevel = 5;
-
     public static long owner_qq;
     public static long bot_qq;
     public static String api;
