@@ -21,7 +21,7 @@ public final class Java2kbot extends JavaPlugin {
     public static final Java2kbot INSTANCE = new Java2kbot();
 
     public Java2kbot() {
-        super(new JvmPluginDescriptionBuilder("com.java_2kbot", "1.0.0")
+        super(new JvmPluginDescriptionBuilder("com.java_2kbot", "1.0.2")
                 .name("2kbot Java Edition")
                 .author("Abjust")
                 .build());
@@ -74,6 +74,9 @@ public final class Java2kbot extends JavaPlugin {
         // 注册监听器
         GlobalEventChannel.INSTANCE.registerListenerHost(new BotMain());
         // 运行面包厂生产任务
-        BreadFactory.BreadProduce();
+        Thread newThread = new Thread(() -> {
+            BreadFactory.BreadProduce();
+        });
+        newThread.start();
     }
 }

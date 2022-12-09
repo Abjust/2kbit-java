@@ -6,7 +6,7 @@ plugins {
 }
 
 group = 'com.java_2kbot'
-version = '1.0.0'
+version = '1.0.2'
 
 dependencies {
     implementation "mysql:mysql-connector-java:8.0.31"
