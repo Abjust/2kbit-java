@@ -12,6 +12,8 @@
 
 4.[Mirai Console IntelliJ](https://plugins.jetbrains.com/plugin/15094-mirai-console)
 
+5.[Java SE Development Kit](https://www.oracle.com/java/technologies/downloads/)（要求JDK 17及以上版本）
+
 ## 如何构建
 
 1.打开IntelliJ IDEA
