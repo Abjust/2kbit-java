@@ -15,6 +15,7 @@ import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.ContactList;
 import net.mamoe.mirai.contact.Group;
 import net.mamoe.mirai.message.data.MessageChain;
+
 import java.util.Objects;
 
 public class Announce {

@@ -12,14 +12,15 @@
 package com.java_2kbot;
 
 import net.mamoe.mirai.Bot;
+import net.mamoe.mirai.contact.ContactList;
+import net.mamoe.mirai.contact.NormalMember;
 
-import java.awt.*;
 import java.sql.*;
 import java.util.Objects;
 
 public class Admin {
     // 禁言功能
-    public static void Mute(long executor, long victim, long group, int minutes) {
+    public static void Mute(long executor, long victim, long group, String permission, int minutes) {
         if (Global.ops != null && Global.ops.contains(String.format("%s_%s", group, executor)) || Global.g_ops != null && Global.g_ops.contains(Long.toString(executor))) {
             if (Global.ops != null && !Global.ops.contains(String.format("%s_%s", group, victim)) || Global.g_ops != null && !Global.g_ops.contains(Long.toString(victim))) {
                 try {
@@ -43,9 +44,15 @@ public class Admin {
                     System.out.println("群消息发送失败");
                 }
             }
-        } else {
+        } else if (!permission.equals("OWNER")) {
             try {
                 Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("你不是机器人管理员");
+            } catch (Exception ex) {
+                System.out.println("群消息发送失败");
+            }
+        } else {
+            try {
+                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("你不是机器人管理员，但你是本群群主（你应该使用/op指令将自己设置为本群机器人管理员）");
             } catch (Exception ex) {
                 System.out.println("群消息发送失败");
             }
@@ -53,7 +60,7 @@ public class Admin {
     }
 
     // 解禁功能
-    public static void Unmute(long executor, long victim, long group) {
+    public static void Unmute(long executor, long victim, long group, String permission) {
         if (Global.ops != null && Global.ops.contains(String.format("%s_%s", group, executor)) || Global.g_ops != null && Global.g_ops.contains(Long.toString(executor))) {
             try {
                 Objects.requireNonNull(Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).get(victim)).unmute();
@@ -69,9 +76,15 @@ public class Admin {
                     System.out.println("执行失败");
                 }
             }
-        } else {
+        } else if (!permission.equals("OWNER")) {
             try {
                 Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("你不是机器人管理员");
+            } catch (Exception ex) {
+                System.out.println("群消息发送失败");
+            }
+        } else {
+            try {
+                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("你不是机器人管理员，但你是本群群主（你应该使用/op指令将自己设置为本群机器人管理员）");
             } catch (Exception ex) {
                 System.out.println("群消息发送失败");
             }
@@ -79,7 +92,7 @@ public class Admin {
     }
 
     // 踢人功能
-    public static void Kick(long executor, long victim, long group) {
+    public static void Kick(long executor, long victim, long group, String permission) {
         if (Global.ops != null && Global.ops.contains(String.format("%s_%s", group, executor)) || Global.g_ops != null && Global.g_ops.contains(Long.toString(executor))) {
             if (Global.ops != null && !Global.ops.contains(String.format("%s_%s", group, victim)) || Global.g_ops != null && !Global.g_ops.contains(Long.toString(victim))) {
                 try {
@@ -103,9 +116,15 @@ public class Admin {
                     System.out.println("群消息发送失败");
                 }
             }
-        } else {
+        } else if (!permission.equals("OWNER")) {
             try {
                 Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("你不是机器人管理员");
+            } catch (Exception ex) {
+                System.out.println("群消息发送失败");
+            }
+        } else {
+            try {
+                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("你不是机器人管理员，但你是本群群主（你应该使用/op指令将自己设置为本群机器人管理员）");
             } catch (Exception ex) {
                 System.out.println("群消息发送失败");
             }
@@ -113,7 +132,7 @@ public class Admin {
     }
 
     // 加黑功能
-    public static void Block(long executor, long victim, long group) {
+    public static void Block(long executor, long victim, long group, String permission) {
         if (Global.ops != null && Global.ops.contains(String.format("%s_%s", group, executor)) || Global.g_ops != null && Global.g_ops.contains(Long.toString(executor))) {
             if (Global.ops != null && !Global.ops.contains(String.format("%s_%s", group, victim)) || Global.g_ops != null && !Global.g_ops.contains(Long.toString(victim))) {
                 if (!Global.blocklist.contains(Long.toString(victim))) {
@@ -151,9 +170,15 @@ public class Admin {
                     System.out.printf("%s 是机器人管理员，不能加黑%n", victim);
                 }
             }
-        } else {
+        } else if (!permission.equals("OWNER")) {
             try {
                 Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("你不是机器人管理员");
+            } catch (Exception ex) {
+                System.out.println("群消息发送失败");
+            }
+        } else {
+            try {
+                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("你不是机器人管理员，但你是本群群主（你应该使用/op指令将自己设置为本群机器人管理员）");
             } catch (Exception ex) {
                 System.out.println("群消息发送失败");
             }
@@ -161,7 +186,7 @@ public class Admin {
     }
 
     // 解黑功能
-    public static void Unblock(long executor, long victim, long group) {
+    public static void Unblock(long executor, long victim, long group, String permission) {
         if (Global.ops != null && Global.ops.contains(String.format("%s_%s", group, executor)) || Global.g_ops != null && Global.g_ops.contains(Long.toString(executor))) {
             if (Global.blocklist.contains(Long.toString(victim))) {
                 try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
@@ -182,9 +207,15 @@ public class Admin {
                     System.out.printf("%s 不在 %s 黑名单内%n", victim, group);
                 }
             }
-        } else {
+        } else if (!permission.equals("OWNER")) {
             try {
                 Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("你不是机器人管理员");
+            } catch (Exception ex) {
+                System.out.println("群消息发送失败");
+            }
+        } else {
+            try {
+                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("你不是机器人管理员，但你是本群群主（你应该使用/op指令将自己设置为本群机器人管理员）");
             } catch (Exception ex) {
                 System.out.println("群消息发送失败");
             }
@@ -221,9 +252,15 @@ public class Admin {
                     System.out.printf("%s 是全局机器人管理员，不能全局加黑%n", victim);
                 }
             }
-        } else {
+        } else if (victim != Global.owner_qq) {
             try {
                 Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("你不是全局机器人管理员");
+            } catch (Exception ex) {
+                System.out.println("群消息发送失败");
+            }
+        } else {
+            try {
+                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("你不是全局机器人管理员，但你是机器人主人（你应该使用/gop指令将自己设置为全局机器人管理员）");
             } catch (Exception ex) {
                 System.out.println("群消息发送失败");
             }
@@ -252,17 +289,24 @@ public class Admin {
                     System.out.printf("%s 不在全局黑名单内%n", victim);
                 }
             }
-        } else {
+        } else if (victim != Global.owner_qq) {
             try {
                 Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("你不是全局机器人管理员");
             } catch (Exception ex) {
                 System.out.println("群消息发送失败");
             }
+        } else {
+            try {
+                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("你不是全局机器人管理员，但你是机器人主人（你应该使用/gop指令将自己设置为全局机器人管理员）");
+            } catch (Exception ex) {
+                System.out.println("群消息发送失败");
+            }
         }
     }
+
     // 给OP功能
-    public static void Op(long executor, long victim, long group) {
-        if (Global.ops != null && Global.ops.contains(String.format("%s_%s", group, executor)) || Global.g_ops != null && Global.g_ops.contains(Long.toString(executor))) {
+    public static void Op(long executor, long victim, long group, String permission) {
+        if (permission.equals("OWNER") || Global.ops != null && Global.ops.contains(String.format("%s_%s", group, executor)) || Global.g_ops != null && Global.g_ops.contains(Long.toString(executor))) {
             if (Global.ops == null || !Global.ops.contains(String.format("%s_%s", group, victim))) {
                 try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
                     Statement cmd = msc.createStatement();
@@ -284,26 +328,42 @@ public class Admin {
             }
         } else {
             try {
-                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("你不是机器人管理员");
+                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("你不是机器人管理员或者本群群主");
             } catch (Exception ex) {
                 System.out.println("群消息发送失败");
             }
         }
     }
+
     // 取消OP功能
     public static void Deop(long executor, long victim, long group) {
+        ContactList<NormalMember> memberList = Objects.requireNonNull(Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).getMembers());
+        long group_owner = 0;
+        for (NormalMember member : memberList) {
+            if (member.getPermission().toString().equals("OWNER")) {
+                group_owner = member.getId();
+            }
+        }
         if (Global.ops != null && Global.ops.contains(String.format("%s_%s", group, executor)) || Global.g_ops != null && Global.g_ops.contains(Long.toString(executor))) {
             if (Global.ops != null && Global.ops.contains(String.format("%s_%s", group, victim))) {
-                try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
-                    Statement cmd = msc.createStatement();
-                    cmd.executeUpdate(String.format("DELETE FROM ops WHERE qid = %s AND gid = %s);", victim, group));
-                    try {
-                        Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("已取消 %s 在本群的机器人管理员权限", victim));
-                    } catch (Exception ex1) {
-                        System.out.printf("已取消 %s 在 %s 的机器人管理员权限%n", victim, group);
+                if (victim != group_owner) {
+                    try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
+                        Statement cmd = msc.createStatement();
+                        cmd.executeUpdate(String.format("DELETE FROM ops WHERE qid = %s AND gid = %s);", victim, group));
+                        try {
+                            Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("已取消 %s 在本群的机器人管理员权限", victim));
+                        } catch (Exception ex1) {
+                            System.out.printf("已取消 %s 在 %s 的机器人管理员权限%n", victim, group);
+                        }
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
                     }
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
+                } else {
+                    try {
+                        Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("%s 是本群群主，不能被取消本群机器人管理员", victim));
+                    } catch (Exception ex1) {
+                        System.out.printf("%s 是 %s 群主，不能被取消 %s 机器人管理员%n", victim, group, group);
+                    }
                 }
             } else {
                 try {
@@ -320,9 +380,10 @@ public class Admin {
             }
         }
     }
+
     // 给全局OP功能
     public static void G_Op(long executor, long victim, long group) {
-        if (Global.g_ops != null && Global.g_ops.contains(Long.toString(executor))) {
+        if (executor == Global.owner_qq || Global.g_ops != null && Global.g_ops.contains(Long.toString(executor))) {
             if (!Global.g_ops.contains(Long.toString(victim))) {
                 try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
                     Statement cmd = msc.createStatement();
@@ -344,26 +405,35 @@ public class Admin {
             }
         } else {
             try {
-                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("你不是全局机器人管理员");
+                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("你不是全局机器人管理员或者机器人主人");
             } catch (Exception ex) {
                 System.out.println("群消息发送失败");
             }
         }
     }
+
     // 取消全局OP功能
     public static void G_Deop(long executor, long victim, long group) {
         if (Global.g_ops != null && Global.g_ops.contains(Long.toString(executor))) {
             if (Global.g_ops.contains(Long.toString(victim))) {
-                try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
-                    Statement cmd = msc.createStatement();
-                    cmd.executeUpdate(String.format("DELETE FROM g_ops WHERE qid = %s", victim));
-                    try {
-                        Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("已取消 %s 的全局机器人管理员权限", victim));
-                    } catch (Exception ex1) {
-                        System.out.printf("已取消 %s 的全局机器人管理员权限%n", victim);
+                if (victim != Global.owner_qq) {
+                    try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
+                        Statement cmd = msc.createStatement();
+                        cmd.executeUpdate(String.format("DELETE FROM g_ops WHERE qid = %s", victim));
+                        try {
+                            Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("已取消 %s 的全局机器人管理员权限", victim));
+                        } catch (Exception ex1) {
+                            System.out.printf("已取消 %s 的全局机器人管理员权限%n", victim);
+                        }
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
                     }
-                } catch (SQLException e) {
-                    throw new RuntimeException(e);
+                } else {
+                    try {
+                        Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("%s 是机器人主人，不能被取消全局机器人管理员", victim));
+                    } catch (Exception ex1) {
+                        System.out.printf("%s 是机器人主人，不能被取消全局机器人管理员%n", victim);
+                    }
                 }
             } else {
                 try {
@@ -380,8 +450,9 @@ public class Admin {
             }
         }
     }
+
     // 屏蔽消息功能
-    public static void Ignore(long executor, long victim, long group) {
+    public static void Ignore(long executor, long victim, long group, String permission) {
         if (Global.ops != null && Global.ops.contains(String.format("%s_%s", group, executor)) || Global.g_ops != null && Global.g_ops.contains(Long.toString(executor))) {
             if (Global.ignores == null || !Global.ignores.contains(String.format("%s_%s", group, victim))) {
                 try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
@@ -402,14 +473,21 @@ public class Admin {
                     System.out.printf("%s 的消息已经在 %s 被机器人屏蔽了%n", victim, group);
                 }
             }
-        } else {
+        } else if (!permission.equals("OWNER")) {
             try {
                 Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("你不是机器人管理员");
             } catch (Exception ex) {
                 System.out.println("群消息发送失败");
             }
+        } else {
+            try {
+                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("你不是机器人管理员，但你是本群群主（你应该使用/op指令将自己设置为本群机器人管理员）");
+            } catch (Exception ex) {
+                System.out.println("群消息发送失败");
+            }
         }
     }
+
     // 全局屏蔽消息功能
     public static void G_Ignore(long executor, long victim, long group) {
         if (Global.g_ops != null && Global.g_ops.contains(Long.toString(executor))) {
@@ -432,22 +510,30 @@ public class Admin {
                     System.out.printf("%s 的消息已经在所有群被机器人屏蔽了", victim);
                 }
             }
-        } else {
+        } else if (victim != Global.owner_qq) {
             try {
                 Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("你不是全局机器人管理员");
             } catch (Exception ex) {
                 System.out.println("群消息发送失败");
             }
+        } else {
+            try {
+                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("你不是全局机器人管理员，但你是机器人主人（你应该使用/gop指令将自己设置为全局机器人管理员）");
+            } catch (Exception ex) {
+                System.out.println("群消息发送失败");
+            }
         }
     }
+
     // 带 清 洗
-    public static void Purge(long executor, long group) {
+    public static void Purge(long executor, long group, String permission) {
         if (Global.ops != null && Global.ops.contains(String.format("%s_%s", group, executor)) || Global.g_ops != null && Global.g_ops.contains(Long.toString(executor))) {
             if (Global.g_blocklist != null) {
                 for (int i = 0; i < Global.g_blocklist.size(); i++) {
                     try {
                         Objects.requireNonNull(Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).get(Long.parseLong(Global.g_blocklist.get(i)))).kick("");
-                    } catch (Exception ignored) {}
+                    } catch (Exception ignored) {
+                    }
                 }
             }
             if (Global.blocklist != null) {
@@ -456,7 +542,8 @@ public class Admin {
                     if (Long.parseLong(blocklist[0]) == group) {
                         try {
                             Objects.requireNonNull(Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).get(Long.parseLong(blocklist[1]))).kick("");
-                        } catch (Exception ignored) {}
+                        } catch (Exception ignored) {
+                        }
                     }
                 }
             }
@@ -465,9 +552,15 @@ public class Admin {
             } catch (Exception ex) {
                 System.out.println("群消息发送失败");
             }
-        } else {
+        } else if (!permission.equals("OWNER")) {
             try {
                 Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("你不是机器人管理员");
+            } catch (Exception ex) {
+                System.out.println("群消息发送失败");
+            }
+        } else {
+            try {
+                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("你不是机器人管理员，但你是本群群主（你应该使用/op指令将自己设置为本群机器人管理员）");
             } catch (Exception ex) {
                 System.out.println("群消息发送失败");
             }

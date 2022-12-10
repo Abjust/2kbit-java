@@ -20,7 +20,8 @@ import java.util.Random;
 public class BreadFactory {
     public static List<String> group_ids;
     public static int speed;
-    public static void BreadProduce(){
+
+    public static void BreadProduce() {
         List<String> groupids = new ArrayList<>();
         try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
             PreparedStatement cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread`", Global.database_name));

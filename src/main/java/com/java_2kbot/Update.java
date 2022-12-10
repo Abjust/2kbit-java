@@ -20,69 +20,76 @@ public class Update {
         String a;
         String b;
         try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
-            // 更新op列表
-            PreparedStatement cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`ops` WHERE qid IS NOT NULL AND gid IS NOT NULL", Global.database_name));
-            ResultSet rs = cmd.executeQuery();
-            List<String> ops = new ArrayList<>();
-            while (rs.next()) {
-                a = rs.getString("gid");
-                b = rs.getString("qid");
-                ops.add(String.format("%s_%s", a, b));
-                Global.ops = ops;
+            while (true) {
+                // 更新op列表
+                PreparedStatement cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`ops` WHERE qid IS NOT NULL AND gid IS NOT NULL", Global.database_name));
+                ResultSet rs = cmd.executeQuery();
+                List<String> ops = new ArrayList<>();
+                while (rs.next()) {
+                    a = rs.getString("gid");
+                    b = rs.getString("qid");
+                    ops.add(String.format("%s_%s", a, b));
+                    Global.ops = ops;
+                }
+                rs.close();
+                // 更新黑名单
+                cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`blocklist` WHERE qid IS NOT NULL AND gid IS NOT NULL", Global.database_name));
+                rs = cmd.executeQuery();
+                List<String> blocklist = new ArrayList<>();
+                while (rs.next()) {
+                    a = rs.getString("gid");
+                    b = rs.getString("qid");
+                    ops.add(String.format("%s_%s", a, b));
+                    Global.blocklist = blocklist;
+                }
+                rs.close();
+                // 更新屏蔽列表
+                cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`ignores` WHERE qid IS NOT NULL AND gid IS NOT NULL", Global.database_name));
+                rs = cmd.executeQuery();
+                List<String> ignores = new ArrayList<>();
+                while (rs.next()) {
+                    a = rs.getString("gid");
+                    b = rs.getString("qid");
+                    ops.add(String.format("%s_%s", a, b));
+                    Global.ignores = ignores;
+                }
+                rs.close();
+                // 更新全局op列表
+                cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`g_ops` WHERE qid IS NOT NULL", Global.database_name));
+                rs = cmd.executeQuery();
+                List<String> g_ops = new ArrayList<>();
+                while (rs.next()) {
+                    a = rs.getString("qid");
+                    g_ops.add(a);
+                    Global.g_ops = g_ops;
+                }
+                rs.close();
+                // 更新全局黑名单
+                cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`g_blocklist` WHERE qid IS NOT NULL", Global.database_name));
+                rs = cmd.executeQuery();
+                List<String> g_blocklist = new ArrayList<>();
+                while (rs.next()) {
+                    a = rs.getString("qid");
+                    g_blocklist.add(a);
+                    Global.g_blocklist = g_blocklist;
+                }
+                rs.close();
+                // 更新全局屏蔽列表
+                cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`g_ignores` WHERE qid IS NOT NULL", Global.database_name));
+                rs = cmd.executeQuery();
+                List<String> g_ignores = new ArrayList<>();
+                while (rs.next()) {
+                    a = rs.getString("qid");
+                    g_ignores.add(a);
+                    Global.g_ignores = g_ignores;
+                }
+                rs.close();
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
-            rs.close();
-            // 更新黑名单
-            cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`blocklist` WHERE qid IS NOT NULL AND gid IS NOT NULL", Global.database_name));
-            rs = cmd.executeQuery();
-            List<String> blocklist = new ArrayList<>();
-            while (rs.next()) {
-                a = rs.getString("gid");
-                b = rs.getString("qid");
-                ops.add(String.format("%s_%s", a, b));
-                Global.blocklist = blocklist;
-            }
-            rs.close();
-            // 更新屏蔽列表
-            cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`ignores` WHERE qid IS NOT NULL AND gid IS NOT NULL", Global.database_name));
-            rs = cmd.executeQuery();
-            List<String> ignores = new ArrayList<>();
-            while (rs.next()) {
-                a = rs.getString("gid");
-                b = rs.getString("qid");
-                ops.add(String.format("%s_%s", a, b));
-                Global.ignores = ignores;
-            }
-            rs.close();
-            // 更新全局op列表
-            cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`g_ops` WHERE qid IS NOT NULL", Global.database_name));
-            rs = cmd.executeQuery();
-            List<String> g_ops = new ArrayList<>();
-            while (rs.next()) {
-                a = rs.getString("qid");
-                g_ops.add(a);
-                Global.g_ops = g_ops;
-            }
-            rs.close();
-            // 更新全局黑名单
-            cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`g_blocklist` WHERE qid IS NOT NULL", Global.database_name));
-            rs = cmd.executeQuery();
-            List<String> g_blocklist = new ArrayList<>();
-            while (rs.next()) {
-                a = rs.getString("qid");
-                g_blocklist.add(a);
-                Global.g_blocklist = g_blocklist;
-            }
-            rs.close();
-            // 更新全局屏蔽列表
-            cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`g_ignores` WHERE qid IS NOT NULL", Global.database_name));
-            rs = cmd.executeQuery();
-            List<String> g_ignores = new ArrayList<>();
-            while (rs.next()) {
-                a = rs.getString("qid");
-                g_ignores.add(a);
-                Global.g_ignores = g_ignores;
-            }
-            rs.close();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

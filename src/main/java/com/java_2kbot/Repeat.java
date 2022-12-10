@@ -73,7 +73,7 @@ public class Repeat {
             }
         }
         // 主动复读
-        else if ((executor != Global.bot_qq && Global.ignores == null || !Global.ignores.contains(String.format("%s_%s", group, executor)) && (Global.g_ignores == null || !Global.g_ignores.contains(Long.toString(executor))))) {
+        else {
             for (String item : repeatwords) {
                 if (item.equals(messageChain.contentToString())) {
                     Global.time_now = Instant.now().getEpochSecond();

@@ -13,6 +13,7 @@ package com.java_2kbot;
 
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.message.data.MessageChain;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -114,15 +115,15 @@ public class Help {
             } else if (messageChain.contentToString().equals("!help")) {
                 try {
                     Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("""
-目前有对于以下功能的帮助文档：
-[1]群管功能
-[2]!echo
-[3]!call
-[4]精神心理疾病科普
-[5]量表测试
-[6]面包厂
-[7]获取源码
-""");
+                            目前有对于以下功能的帮助文档：
+                            [1]群管功能
+                            [2]!echo
+                            [3]!call
+                            [4]精神心理疾病科普
+                            [5]量表测试
+                            [6]面包厂
+                            [7]获取源码
+                            """);
                 } catch (Exception ex1) {
                     System.out.println("帮助消息发送失败");
                 }
