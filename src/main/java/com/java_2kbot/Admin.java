@@ -144,6 +144,7 @@ public class Admin {
                         } catch (Exception ex1) {
                             System.out.printf("已将 %s 加入 %s 黑名单%n", victim, group);
                         }
+                        Update.Execute();
                         try {
                             Objects.requireNonNull(Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).get(victim)).kick("");
                         } catch (Exception ex2) {
@@ -197,6 +198,7 @@ public class Admin {
                     } catch (Exception ex1) {
                         System.out.printf("已将 %s 移出 %s 黑名单%n", victim, group);
                     }
+                    Update.Execute();
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
@@ -235,6 +237,7 @@ public class Admin {
                         } catch (Exception ex1) {
                             System.out.printf("已将 %s 加入全局黑名单%n", victim);
                         }
+                        Update.Execute();
                     } catch (SQLException e) {
                         throw new RuntimeException(e);
                     }
@@ -279,6 +282,7 @@ public class Admin {
                     } catch (Exception ex1) {
                         System.out.printf("已将 %s 移出全局黑名单%n", victim);
                     }
+                    Update.Execute();
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
@@ -316,6 +320,7 @@ public class Admin {
                     } catch (Exception ex1) {
                         System.out.printf("已将 %s 设置为 %s 机器人管理员%n", victim, group);
                     }
+                    Update.Execute();
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
@@ -355,6 +360,7 @@ public class Admin {
                         } catch (Exception ex1) {
                             System.out.printf("已取消 %s 在 %s 的机器人管理员权限%n", victim, group);
                         }
+                        Update.Execute();
                     } catch (SQLException e) {
                         throw new RuntimeException(e);
                     }
@@ -393,6 +399,7 @@ public class Admin {
                     } catch (Exception ex1) {
                         System.out.printf("已将 %s 设置为全局机器人管理员%n", victim);
                     }
+                    Update.Execute();
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
@@ -425,6 +432,7 @@ public class Admin {
                         } catch (Exception ex1) {
                             System.out.printf("已取消 %s 的全局机器人管理员权限%n", victim);
                         }
+                        Update.Execute();
                     } catch (SQLException e) {
                         throw new RuntimeException(e);
                     }
@@ -463,6 +471,7 @@ public class Admin {
                     } catch (Exception ex1) {
                         System.out.printf("已在 %s 屏蔽 %s 的消息%n", victim, group);
                     }
+                    Update.Execute();
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
@@ -500,6 +509,7 @@ public class Admin {
                     } catch (Exception ex1) {
                         System.out.printf("已屏蔽 %s 在所有群的消息", victim);
                     }
+                    Update.Execute();
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }

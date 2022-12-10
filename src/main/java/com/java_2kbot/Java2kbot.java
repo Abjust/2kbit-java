@@ -21,7 +21,7 @@ public final class Java2kbot extends JavaPlugin {
     public static final Java2kbot INSTANCE = new Java2kbot();
 
     public Java2kbot() {
-        super(new JvmPluginDescriptionBuilder("com.java_2kbot", "1.0.4")
+        super(new JvmPluginDescriptionBuilder("com.java_2kbot", "1.0.5")
                 .name("2kbot Java Edition")
                 .author("Abjust")
                 .build());
@@ -75,8 +75,7 @@ public final class Java2kbot extends JavaPlugin {
         // 运行面包厂生产任务
         Thread newThread = new Thread(BreadFactory::BreadProduce);
         newThread.start();
-        // 自动更新列表
-        Thread newThread1 = new Thread(Update::Execute);
-        newThread1.start();
+        // 更新列表
+        Update.Execute();
     }
 }

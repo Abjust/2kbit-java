@@ -713,7 +713,7 @@ public class BotMain extends SimpleListenerHost {
                 Random r = new Random();
                 int random = r.nextInt(splashes.size());
                 try {
-                    event.getGroup().sendMessage(String.format("机器人版本：1.0.4-je\n上次更新日期：2022/12/10\n更新内容：将2kbot b_22w23d移植到了2kbot Java Edition\n---------\n%s", splashes.get(random)));
+                    event.getGroup().sendMessage(String.format("机器人版本：1.0.5-je\n上次更新日期：2022/12/10\n更新内容：修复了复读机问题\n---------\n%s", splashes.get(random)));
                 } catch (Exception e) {
                     System.out.println("群消息发送失败");
                 }
