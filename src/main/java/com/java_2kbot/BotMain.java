@@ -129,7 +129,7 @@ public class BotMain extends SimpleListenerHost {
     // bot对接收消息的处理
     @EventHandler
     private void onEvent(GroupMessageEvent event) {
-        if ((event.getSender().getId() != Global.bot_qq && Global.ignores == null || !Global.ignores.contains(String.format("%s_%s", event.getGroup().getId(), event.getSender().getId())) && (Global.g_ignores == null || !Global.g_ignores.contains(Long.toString(event.getSender().getId()))))) {
+        if ((event.getSender().getId() != Global.bot_qq && (Global.ignores == null || !Global.ignores.contains(String.format("%s_%s", event.getGroup().getId(), event.getSender().getId()))) && (Global.g_ignores == null || !Global.g_ignores.contains(Long.toString(event.getSender().getId()))))) {
             // 面包厂相关
             String[] command = event.getMessage().contentToString().split(" ");
             if (command.length == 2) {
@@ -168,6 +168,11 @@ public class BotMain extends SimpleListenerHost {
             Bread.GetExp(event.getGroup().getId(), event.getSender().getId());
             // 复读机
             Repeat.Execute(event.getGroup().getId(), event.getSender().getId(), event.getMessage());
+            // 数学计算
+            if (s.startsWith("!calc"))
+            {
+                Mathematics.Execute(event.getGroup().getId(), event.getMessage());
+            }
             // 发送公告
             if (s.startsWith("!announce")) {
                 Announce.Execute(event.getSender().getId(), event.getGroup().getId(), event.getMessage());
@@ -288,7 +293,7 @@ public class BotMain extends SimpleListenerHost {
             Zuan.Execute(event.getGroup().getId(), event.getSender().getId(), event.getMessage());
             // 群管功能
             // 禁言
-            if (s.startsWith("!mute")) {
+            if (s.startsWith("!mute") && !s.startsWith("!muteme")) {
                 String result1 = event.getMessage().serializeToMiraiCode();
                 String[] text = s.split(" ");
                 if (text.length != 1) {
@@ -657,6 +662,26 @@ public class BotMain extends SimpleListenerHost {
                     }
                 }
             }
+            // 禁言自己
+            if (s.startsWith("!muteme")) {
+                String[] text = s.split(" ");
+                if (text.length == 2)
+                {
+                    Admin.MuteMe(event.getSender().getId(), event.getGroup().getId(), Integer.parseInt(text[1]));
+                }
+                else if (text.length == 1)
+                {
+                    Admin.MuteMe(event.getSender().getId(), event.getGroup().getId(), 10);
+                }
+                else
+                {
+                    try {
+                        event.getGroup().sendMessage("参数错误");
+                    } catch (Exception e) {
+                        System.out.println("群消息发送失败");
+                    }
+                }
+            }
             // 发动带清洗
             if (s.equals("!purge")) {
                 Admin.Purge(event.getSender().getId(), event.getGroup().getId(), event.getSender().getPermission().toString());
@@ -713,7 +738,7 @@ public class BotMain extends SimpleListenerHost {
                 Random r = new Random();
                 int random = r.nextInt(splashes.size());
                 try {
-                    event.getGroup().sendMessage(String.format("机器人版本：1.0.5-je\n上次更新日期：2022/12/10\n更新内容：修复了复读机问题\n---------\n%s", splashes.get(random)));
+                    event.getGroup().sendMessage(String.format("机器人版本：1.0.6-je\n上次更新日期：2022/12/10\n更新内容：同步了2kbot b_22w24b的功能\n---------\n%s", splashes.get(random)));
                 } catch (Exception e) {
                     System.out.println("群消息发送失败");
                 }

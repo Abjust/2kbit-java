@@ -31,6 +31,7 @@ public class Help {
                         5.量表测试
                         6.面包厂功能
                         7.获取源码
+                        8.数学计算器
                         详情请用!help指令
                         """);
             } catch (Exception ex) {
@@ -47,6 +48,7 @@ public class Help {
                 add("5");
                 add("6");
                 add("7");
+                add("8");
             }
         };
         List<String> contents = new ArrayList<>() {
@@ -83,6 +85,7 @@ public class Help {
                         升级库存（满级后）：!upgrade_storage
                         """);
                 add("https://github.com/Abjust/2kbot-java");
+                add("使用!calc可以显示计算器说明");
             }
         };
         if (messageChain.contentToString().startsWith("!help")) {
@@ -123,6 +126,7 @@ public class Help {
                             [5]量表测试
                             [6]面包厂
                             [7]获取源码
+                            [8]数学计算器
                             """);
                 } catch (Exception ex1) {
                     System.out.println("帮助消息发送失败");
