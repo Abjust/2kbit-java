@@ -21,7 +21,7 @@ public final class Java2kbot extends JavaPlugin {
     public static final Java2kbot INSTANCE = new Java2kbot();
 
     public Java2kbot() {
-        super(new JvmPluginDescriptionBuilder("com.java_2kbot", "1.0.6")
+        super(new JvmPluginDescriptionBuilder("com.java_2kbot", "1.0.7")
                 .name("2kbot Java Edition")
                 .author("Abjust")
                 .build());

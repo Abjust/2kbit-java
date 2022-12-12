@@ -36,8 +36,13 @@ public class Repeat {
                         "额",
                         "呃",
                         "6",
-                        "666"
+                        "666",
+                        "faceid:178",
+                        "faceid:14",
+                        "faceid:277",
+                        "faceid:298"
                 };
+        // 复读机
         if (messageChain.contentToString().startsWith("!echo")) {
             String[] result = messageChain.contentToString().split(" ");
             if (result.length > 1) {
@@ -75,6 +80,59 @@ public class Repeat {
         // 主动复读
         else {
             for (String item : repeatwords) {
+                if (item.contains("faceid:")) {
+                    String face_id = item.replace("faceid:","");
+                    if (messageChain.serializeToMiraiCode().equals(String.format("[mirai:face:%s]", face_id))) {
+                        Global.time_now = Instant.now().getEpochSecond();
+                        try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
+                            Statement cmd = msc.createStatement();
+                            String sql = String.format("SELECT COUNT(*) gid FROM `%s`.`repeatctrl` WHERE gid = %s;", Global.database_name, group);
+                            ResultSet rs = cmd.executeQuery(sql);
+                            if (!rs.isBeforeFirst()) {
+                                cmd.executeUpdate(String.format("INSERT INTO `%s`.`repeatctrl` (qid,gid) VALUES (%s,%s);", Global.database_name, executor, group));
+                            }
+                            rs.close();
+                            PreparedStatement cmd1 = msc.prepareStatement(String.format("SELECT * FROM `%s`.`repeatctrl` WHERE gid = %s;", Global.database_name, group));
+                            rs = cmd1.executeQuery();
+                            while (rs.next()) {
+                                if (Global.time_now - rs.getLong("last_repeatctrl") >= Global.repeat_cd) {
+                                    if (Global.time_now - rs.getLong("last_repeat") <= Global.repeat_interval) {
+                                        if (rs.getInt("repeat_count") <= Global.repeat_threshold) {
+                                            cmd.executeUpdate(String.format("UPDATE `%s`.`repeatctrl` SET last_repeat = %s, repeat_count = %s WHERE qid = %s AND gid = %s;", Global.database_name, Global.time_now, rs.getInt("repeat_count") + 1, executor, group));
+                                            try {
+                                                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(messageChain.get(1));
+                                            } catch (Exception e1) {
+                                                System.out.println("群消息发送失败");
+                                            }
+                                            break;
+                                        } else {
+                                            MessageChain messageChain1 = new MessageChainBuilder()
+                                                    .append(new At(executor))
+                                                    .append(String.format(" 你话太多了（恼）（你的消息将在 %s 秒内不被复读）", Global.repeat_cd))
+                                                    .build();
+                                            try {
+                                                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(messageChain1);
+                                            } catch (Exception e1) {
+                                                System.out.println("群消息发送失败");
+                                            }
+                                            break;
+                                        }
+                                    } else {
+                                        cmd.executeUpdate(String.format("UPDATE `%s`.`repeatctrl` SET repeat_count = 1, last_repeat = %s WHERE qid = %s AND gid = %s;", Global.database_name, Global.time_now, executor, group));
+                                        try {
+                                            Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(messageChain.get(1));
+                                        } catch (Exception e1) {
+                                            System.out.println("群消息发送失败");
+                                        }
+                                        break;
+                                    }
+                                }
+                            }
+                        } catch (SQLException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
                 if (item.equals(messageChain.contentToString())) {
                     Global.time_now = Instant.now().getEpochSecond();
                     try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
