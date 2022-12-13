@@ -19,6 +19,9 @@ import java.time.Instant;
 import java.util.Objects;
 
 public class Repeat {
+    public static final int repeat_cd = 300;
+    public static final int repeat_threshold = 5;
+    public static final int repeat_interval = 10;
     public static void Execute(long group, long executor, MessageChain messageChain) {
         String[] repeatwords =
                 {
@@ -95,9 +98,9 @@ public class Repeat {
                             PreparedStatement cmd1 = msc.prepareStatement(String.format("SELECT * FROM `%s`.`repeatctrl` WHERE gid = %s;", Global.database_name, group));
                             rs = cmd1.executeQuery();
                             while (rs.next()) {
-                                if (Global.time_now - rs.getLong("last_repeatctrl") >= Global.repeat_cd) {
-                                    if (Global.time_now - rs.getLong("last_repeat") <= Global.repeat_interval) {
-                                        if (rs.getInt("repeat_count") <= Global.repeat_threshold) {
+                                if (Global.time_now - rs.getLong("last_repeatctrl") >= repeat_cd) {
+                                    if (Global.time_now - rs.getLong("last_repeat") <= repeat_interval) {
+                                        if (rs.getInt("repeat_count") <= repeat_threshold) {
                                             cmd.executeUpdate(String.format("UPDATE `%s`.`repeatctrl` SET last_repeat = %s, repeat_count = %s WHERE qid = %s AND gid = %s;", Global.database_name, Global.time_now, rs.getInt("repeat_count") + 1, executor, group));
                                             try {
                                                 Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(messageChain.get(1));
@@ -108,7 +111,7 @@ public class Repeat {
                                         } else {
                                             MessageChain messageChain1 = new MessageChainBuilder()
                                                     .append(new At(executor))
-                                                    .append(String.format(" 你话太多了（恼）（你的消息将在 %s 秒内不被复读）", Global.repeat_cd))
+                                                    .append(String.format(" 你话太多了（恼）（你的消息将在 %s 秒内不被复读）", repeat_cd))
                                                     .build();
                                             try {
                                                 Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(messageChain1);
@@ -146,9 +149,9 @@ public class Repeat {
                         PreparedStatement cmd1 = msc.prepareStatement(String.format("SELECT * FROM `%s`.`repeatctrl` WHERE gid = %s;", Global.database_name, group));
                         rs = cmd1.executeQuery();
                         while (rs.next()) {
-                            if (Global.time_now - rs.getLong("last_repeatctrl") >= Global.repeat_cd) {
-                                if (Global.time_now - rs.getLong("last_repeat") <= Global.repeat_interval) {
-                                    if (rs.getInt("repeat_count") <= Global.repeat_threshold) {
+                            if (Global.time_now - rs.getLong("last_repeatctrl") >= repeat_cd) {
+                                if (Global.time_now - rs.getLong("last_repeat") <= repeat_interval) {
+                                    if (rs.getInt("repeat_count") <= repeat_threshold) {
                                         cmd.executeUpdate(String.format("UPDATE `%s`.`repeatctrl` SET last_repeat = %s, repeat_count = %s WHERE qid = %s AND gid = %s;", Global.database_name, Global.time_now, rs.getInt("repeat_count") + 1, executor, group));
                                         try {
                                             Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(messageChain.contentToString());
@@ -159,7 +162,7 @@ public class Repeat {
                                     } else {
                                         MessageChain messageChain1 = new MessageChainBuilder()
                                                 .append(new At(executor))
-                                                .append(String.format(" 你话太多了（恼）（你的消息将在 %s 秒内不被复读）", Global.repeat_cd))
+                                                .append(String.format(" 你话太多了（恼）（你的消息将在 %s 秒内不被复读）", repeat_cd))
                                                 .build();
                                         try {
                                             Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(messageChain1);

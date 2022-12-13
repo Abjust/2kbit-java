@@ -24,6 +24,7 @@ import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
 
 public class Bread {
+    public static final int breadfactory_maxlevel = 5;
     // 建造面包厂
     public static void BuildFactory(long group) {
         try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
@@ -346,7 +347,7 @@ public class Bread {
                 rs = cmd1.executeQuery();
                 while (rs.next()) {
                     int exp_formula = (int) (900 * Math.pow(2, rs.getInt("factory_level") - 1));
-                    if (rs.getInt("factory_level") < Global.breadfactory_maxlevel) {
+                    if (rs.getInt("factory_level") < breadfactory_maxlevel) {
                         if (rs.getInt("factory_exp") >= exp_formula) {
                             cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET factory_level = %s, factory_exp = %s WHERE gid = %s", Global.database_name, rs.getInt("factory_level") + 1, rs.getInt("factory_level") - exp_formula, group));
                             rs.close();
@@ -395,7 +396,7 @@ public class Bread {
                 PreparedStatement cmd1 = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group));
                 rs = cmd1.executeQuery();
                 while (rs.next()) {
-                    if (rs.getInt("factory_level") == Global.breadfactory_maxlevel) {
+                    if (rs.getInt("factory_level") == breadfactory_maxlevel) {
                         if (rs.getInt("factory_exp") >= 2000) {
                             cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET storage_upgraded = %s, factory_exp = %s WHERE gid = %s;", Global.database_name, rs.getInt("storage_upgraded") + 1, rs.getInt("factory_exp") - 2000, group));
                             rs.close();
@@ -415,7 +416,7 @@ public class Bread {
                         }
                     } else {
                         try {
-                            Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("本群面包厂尚未满级！（tips：面包厂满级为 %s 级）", Global.breadfactory_maxlevel));
+                            Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("本群面包厂尚未满级！（tips：面包厂满级为 %s 级）", breadfactory_maxlevel));
                         } catch (Exception ex) {
                             System.out.println("群消息发送失败");
                         }

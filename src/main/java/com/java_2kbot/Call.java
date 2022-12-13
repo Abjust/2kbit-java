@@ -18,6 +18,8 @@ import java.time.Instant;
 import java.util.Objects;
 
 public class Call {
+    public static final int call_cd = 40;
+    public static long last_call;
     public static void Execute(long victim, long group, int times) {
         if (times >= 10) {
             times = 10;
@@ -27,18 +29,18 @@ public class Call {
                 .append(" 机器人正在呼叫你")
                 .build();
         Global.time_now = Instant.now().getEpochSecond();
-        if (Global.time_now - Global.last_call >= Global.call_cd) {
+        if (Global.time_now - last_call >= call_cd) {
             for (int i = 0; i < times; i++) {
                 try {
                     Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(messageChain);
-                    Global.last_call = Instant.now().getEpochSecond();
+                    last_call = Instant.now().getEpochSecond();
                 } catch (Exception ex) {
                     break;
                 }
             }
         } else {
             try {
-                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("CD未到，请别急！CD还剩： %s 秒", Global.call_cd - (Global.time_now - Global.last_call)));
+                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("CD未到，请别急！CD还剩： %s 秒", call_cd - (Global.time_now - last_call)));
             } catch (Exception ex) {
                 System.out.println("群消息发送失败");
             }

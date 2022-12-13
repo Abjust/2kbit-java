@@ -20,13 +20,7 @@ public class Global {
     public static List<String> g_blocklist;
     public static List<String> ignores;
     public static List<String> g_ignores;
-    public static long last_call;
     public static long time_now;
-    public static final int call_cd = 40;
-    public static final int repeat_cd = 300;
-    public static final int repeat_threshold = 5;
-    public static final int repeat_interval = 10;
-    public static final int breadfactory_maxlevel = 5;
     public static long owner_qq;
     public static long bot_qq;
     public static String api;

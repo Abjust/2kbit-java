@@ -42,6 +42,8 @@ public class Mathematics {
         } else {
             String formula = messageChain.contentToString().split(" ")[1];
             boolean is_int = true;
+            boolean negative = false;
+            double double_ans = 0;
             BigDecimal decimal_ans = BigDecimal.valueOf(0);
             long int_ans = 0;
             double operand;
@@ -51,7 +53,7 @@ public class Mathematics {
                 operands = formula.split("\\+");
                 try {
                     for (String number : operands) {
-                        if (Double.parseDouble(number) % 1 != 0) {
+                        if (Double.parseDouble(number.replace("n","")) % 1 != 0) {
                             is_int = false;
                             break;
                         }
@@ -62,22 +64,42 @@ public class Mathematics {
                         {
                             if (i == 0)
                             {
-                                int_ans = Integer.parseInt(operands[i]);
+                                if (operands[i].contains("n")) {
+                                    int_ans = -Integer.parseInt(operands[i]);
+                                }
+                                else {
+                                    int_ans = Integer.parseInt(operands[i]);
+                                }
                             }
                             else
                             {
-                                int_ans += Integer.parseInt(operands[i]);
+                                if (operands[i].contains("n")) {
+                                    int_ans += -Integer.parseInt(operands[i]);
+                                }
+                                else {
+                                    int_ans += Integer.parseInt(operands[i]);
+                                }
                             }
                         }
                         else
                         {
                             if (i == 0)
                             {
-                                decimal_ans = BigDecimal.valueOf(Double.parseDouble(operands[i]));
+                                if (operands[i].contains("n")) {
+                                    decimal_ans = BigDecimal.valueOf(-Double.parseDouble(operands[i]));
+                                }
+                                else {
+                                    decimal_ans = BigDecimal.valueOf(Double.parseDouble(operands[i]));
+                                }
                             }
                             else
                             {
-                                decimal_ans = decimal_ans.add(BigDecimal.valueOf(Double.parseDouble(operands[i])));
+                                if (operands[i].contains("n")) {
+                                    decimal_ans = decimal_ans.add(BigDecimal.valueOf(-Double.parseDouble(operands[i])));
+                                }
+                                else {
+                                    decimal_ans = decimal_ans.add(BigDecimal.valueOf(Double.parseDouble(operands[i])));
+                                }
                             }
                         }
                     }
@@ -117,22 +139,42 @@ public class Mathematics {
                         {
                             if (i == 0)
                             {
-                                int_ans = Integer.parseInt(operands[i]);
+                                if (operands[i].contains("n")) {
+                                    int_ans = -Integer.parseInt(operands[i]);
+                                }
+                                else {
+                                    int_ans = Integer.parseInt(operands[i]);
+                                }
                             }
                             else
                             {
-                                int_ans -= Integer.parseInt(operands[i]);
+                                if (operands[i].contains("n")) {
+                                    int_ans -= -Integer.parseInt(operands[i]);
+                                }
+                                else {
+                                    int_ans -= Integer.parseInt(operands[i]);
+                                }
                             }
                         }
                         else
                         {
                             if (i == 0)
                             {
-                                decimal_ans = BigDecimal.valueOf(Double.parseDouble(operands[i]));
+                                if (operands[i].contains("n")) {
+                                    decimal_ans = BigDecimal.valueOf(-Double.parseDouble(operands[i]));
+                                }
+                                else {
+                                    decimal_ans = BigDecimal.valueOf(Double.parseDouble(operands[i]));
+                                }
                             }
                             else
                             {
-                                decimal_ans = decimal_ans.subtract(BigDecimal.valueOf(Double.parseDouble(operands[i])));
+                                if (operands[i].contains("n")) {
+                                    decimal_ans = decimal_ans.subtract(BigDecimal.valueOf(-Double.parseDouble(operands[i])));
+                                }
+                                else {
+                                    decimal_ans = decimal_ans.subtract(BigDecimal.valueOf(Double.parseDouble(operands[i])));
+                                }
                             }
                         }
                     }
@@ -172,22 +214,42 @@ public class Mathematics {
                         {
                             if (i == 0)
                             {
-                                int_ans = Integer.parseInt(operands[i]);
+                                if (operands[i].contains("n")) {
+                                    int_ans = -Integer.parseInt(operands[i]);
+                                }
+                                else {
+                                    int_ans = Integer.parseInt(operands[i]);
+                                }
                             }
                             else
                             {
-                                int_ans *= Integer.parseInt(operands[i]);
+                                if (operands[i].contains("n")) {
+                                    int_ans *= -Integer.parseInt(operands[i]);
+                                }
+                                else {
+                                    int_ans *= Integer.parseInt(operands[i]);
+                                }
                             }
                         }
                         else
                         {
                             if (i == 0)
                             {
-                                decimal_ans = BigDecimal.valueOf(Double.parseDouble(operands[i]));
+                                if (operands[i].contains("n")) {
+                                    decimal_ans = BigDecimal.valueOf(-Double.parseDouble(operands[i]));
+                                }
+                                else {
+                                    decimal_ans = BigDecimal.valueOf(Double.parseDouble(operands[i]));
+                                }
                             }
                             else
                             {
-                                decimal_ans = decimal_ans.multiply(BigDecimal.valueOf(Double.parseDouble(operands[i])));
+                                if (operands[i].contains("n")) {
+                                    decimal_ans = decimal_ans.multiply(BigDecimal.valueOf(-Double.parseDouble(operands[i])));
+                                }
+                                else {
+                                    decimal_ans = decimal_ans.multiply(BigDecimal.valueOf(Double.parseDouble(operands[i])));
+                                }
                             }
                         }
                     }
@@ -227,22 +289,42 @@ public class Mathematics {
                         {
                             if (i == 0)
                             {
-                                int_ans = Integer.parseInt(operands[i]);
+                                if (operands[i].contains("n")) {
+                                    int_ans = -Integer.parseInt(operands[i]);
+                                }
+                                else {
+                                    int_ans = Integer.parseInt(operands[i]);
+                                }
                             }
                             else
                             {
-                                int_ans /= Integer.parseInt(operands[i]);
+                                if (operands[i].contains("n")) {
+                                    int_ans /= -Integer.parseInt(operands[i]);
+                                }
+                                else {
+                                    int_ans /= Integer.parseInt(operands[i]);
+                                }
                             }
                         }
                         else
                         {
                             if (i == 0)
                             {
-                                decimal_ans = BigDecimal.valueOf(Double.parseDouble(operands[i]));
+                                if (operands[i].contains("n")) {
+                                    decimal_ans = BigDecimal.valueOf(-Double.parseDouble(operands[i]));
+                                }
+                                else {
+                                    decimal_ans = BigDecimal.valueOf(Double.parseDouble(operands[i]));
+                                }
                             }
                             else
                             {
-                                decimal_ans = decimal_ans.divide(BigDecimal.valueOf(Double.parseDouble(operands[i])));
+                                if (operands[i].contains("n")) {
+                                    decimal_ans = decimal_ans.divide(BigDecimal.valueOf(-Double.parseDouble(operands[i])));
+                                }
+                                else {
+                                    decimal_ans = decimal_ans.divide(BigDecimal.valueOf(Double.parseDouble(operands[i])));
+                                }
                             }
                         }
                     }
@@ -271,7 +353,15 @@ public class Mathematics {
                 operands = formula.split("\\^");
                 try {
                     for (String number : operands) {
-                        if (Double.parseDouble(number) % 1 != 0) {
+                        if (!number.contains("n") && Double.parseDouble(number) % 1 != 0) {
+                            is_int = false;
+                            break;
+                        }
+                        else if (operands[0].contains("n")) {
+                            negative = true;
+                        }
+                        else if (operands[1].contains("n")) {
+                            negative = true;
                             is_int = false;
                             break;
                         }
@@ -282,11 +372,26 @@ public class Mathematics {
                         {
                             if (i == 0)
                             {
-                                int_ans = Integer.parseInt(operands[i]);
+                                if (!negative) {
+                                    int_ans = Integer.parseInt(operands[i]);
+                                }
+                                else {
+                                    int_ans = -Integer.parseInt(operands[i]);
+                                }
                             }
                             else
                             {
                                 int_ans = (long) Math.pow(int_ans, Integer.parseInt(operands[i]));
+                            }
+                        }
+                        else if (negative) {
+                            if (i == 0)
+                            {
+                                double_ans = Double.parseDouble(operands[i].replace("n", ""));
+                            }
+                            else
+                            {
+                                double_ans = Math.pow(double_ans, -Integer.parseInt(operands[i].replace("n", "")));
                             }
                         }
                         else
