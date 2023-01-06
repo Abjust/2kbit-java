@@ -62,21 +62,21 @@ public class Repeat {
                         try {
                             Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.valueOf(results));
                         } catch (Exception ex) {
-                            System.out.println("群消息发送失败");
+                            System.out.println("复读失败（恼）");
                         }
                     }
                 } catch (Exception ex) {
                     try {
                         Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("油饼食不食？");
                     } catch (Exception e1) {
-                        System.out.println("群消息发送失败");
+                        System.out.println("复读失败（恼）");
                     }
                 }
             } else {
                 try {
                     Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("你个sb难道没发觉到少了些什么？");
                 } catch (Exception e1) {
-                    System.out.println("群消息发送失败");
+                    System.out.println("复读失败（恼）");
                 }
             }
         }
@@ -105,7 +105,7 @@ public class Repeat {
                                             try {
                                                 Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(messageChain.get(1));
                                             } catch (Exception e1) {
-                                                System.out.println("群消息发送失败");
+                                                System.out.println("复读失败（恼）");
                                             }
                                             break;
                                         } else {
@@ -116,7 +116,7 @@ public class Repeat {
                                             try {
                                                 Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(messageChain1);
                                             } catch (Exception e1) {
-                                                System.out.println("群消息发送失败");
+                                                System.out.println("复读失败（恼）");
                                             }
                                             break;
                                         }
@@ -125,7 +125,7 @@ public class Repeat {
                                         try {
                                             Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(messageChain.get(1));
                                         } catch (Exception e1) {
-                                            System.out.println("群消息发送失败");
+                                            System.out.println("复读失败（恼）");
                                         }
                                         break;
                                     }
@@ -156,7 +156,7 @@ public class Repeat {
                                         try {
                                             Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(messageChain.contentToString());
                                         } catch (Exception e1) {
-                                            System.out.println("群消息发送失败");
+                                            System.out.println("复读失败（恼）");
                                         }
                                         break;
                                     } else {
@@ -167,7 +167,7 @@ public class Repeat {
                                         try {
                                             Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(messageChain1);
                                         } catch (Exception e1) {
-                                            System.out.println("群消息发送失败");
+                                            System.out.println("复读失败（恼）");
                                         }
                                         break;
                                     }
@@ -176,7 +176,7 @@ public class Repeat {
                                     try {
                                         Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(messageChain.contentToString());
                                     } catch (Exception e1) {
-                                        System.out.println("群消息发送失败");
+                                        System.out.println("复读失败（恼）");
                                     }
                                     break;
                                 }

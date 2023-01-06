@@ -60,7 +60,32 @@ public final class Java2kbot extends JavaPlugin {
                     String.format("CREATE TABLE IF NOT EXISTS `%s`.`g_ops` (`id` INT NOT NULL AUTO_INCREMENT,`qid` VARCHAR(10) NOT NULL COMMENT 'QQ号',PRIMARY KEY (`id`));", Global.database_name),
                     String.format("CREATE TABLE IF NOT EXISTS `%s`.`g_ignores` (`id` INT NOT NULL AUTO_INCREMENT,`qid` VARCHAR(10) NOT NULL COMMENT 'QQ号',PRIMARY KEY (`id`));", Global.database_name),
                     String.format("CREATE TABLE IF NOT EXISTS `%s`.`repeatctrl` (`id` INT NOT NULL AUTO_INCREMENT,`qid` VARCHAR(10) NOT NULL COMMENT 'QQ号',`gid` VARCHAR(10) NOT NULL COMMENT 'Q群号',`last_repeat` BIGINT NULL COMMENT '上次复读时间',`last_repeatctrl` BIGINT NULL COMMENT '上次复读控制时间',`repeat_count` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '复读计数',PRIMARY KEY (`id`));", Global.database_name),
-                    String.format("CREATE TABLE IF NOT EXISTS `%s`.`bread` (`id` int NOT NULL AUTO_INCREMENT,`gid` varchar(10) NOT NULL COMMENT 'Q群号',`factory_level` int NOT NULL DEFAULT '1' COMMENT '面包厂等级',`storage_upgraded` int NOT NULL DEFAULT '0' COMMENT '库存升级次数',`bread_diversity` tinyint NOT NULL DEFAULT '0' COMMENT '多样化生产状态',`factory_exp` int NOT NULL DEFAULT '0' COMMENT '面包厂经验',`breads` int NOT NULL DEFAULT '0' COMMENT '面包库存',`exp_gained_today` int NOT NULL DEFAULT '0' COMMENT '近24小时获取经验数',`last_expfull` bigint NOT NULL DEFAULT '946656000' COMMENT '上次达到经验上限时间',`last_expgain` bigint NOT NULL DEFAULT '946656000' COMMENT '近24小时首次获取经验时间',`last_produce` bigint NOT NULL DEFAULT '946656000' COMMENT '上次完成一轮生产周期时间', PRIMARY KEY (`id`))", Global.database_name)
+                    String.format("""
+                            CREATE TABLE IF NOT EXISTS `%s`.`bread` (
+                            `id` int NOT NULL AUTO_INCREMENT,
+                            `gid` varchar(10) NOT NULL COMMENT 'Q群号',
+                            `factory_level` int NOT NULL DEFAULT '1' COMMENT '面包厂等级',
+                            `storage_upgraded` int NOT NULL DEFAULT '0' COMMENT '库存升级次数',
+                            `bread_diversity` tinyint NOT NULL DEFAULT '0' COMMENT '多样化生产状态',
+                            `factory_exp` int NOT NULL DEFAULT '0' COMMENT '面包厂经验',
+                            `breads` int NOT NULL DEFAULT '0' COMMENT '面包库存',
+                            `exp_gained_today` int NOT NULL DEFAULT '0' COMMENT '近24小时获取经验数',
+                            `last_expfull` bigint NOT NULL DEFAULT '946656000' COMMENT '上次达到经验上限时间',
+                            `last_expgain` bigint NOT NULL DEFAULT '946656000' COMMENT '近24小时首次获取经验时间',
+                            `last_produce` bigint NOT NULL DEFAULT '946656000' COMMENT '上次完成一轮生产周期时间',
+                             PRIMARY KEY (`id`))
+                            """, Global.database_name),
+                    String.format("""
+                            CREATE TABLE IF NOT EXISTS `%s`.`material` (
+                              `id` INT NOT NULL AUTO_INCREMENT,
+                              `gid` VARCHAR(10) NOT NULL COMMENT 'Q群号',
+                              `flour` INT NOT NULL DEFAULT 0 COMMENT '面粉数量',
+                              `egg` INT NOT NULL DEFAULT 0 COMMENT '鸡蛋数量',
+                              `yeast` INT NOT NULL DEFAULT 0 COMMENT '酵母数量',
+                              `last_produce` bigint NOT NULL DEFAULT '946656000' COMMENT '上次完成一轮生产周期时间',
+                              PRIMARY KEY (`id`));
+                            """, Global.database_name),
+                    String.format("INSERT IGNORE INTO `%s`.`material` (id, gid) SELECT id, gid FROM `%s`.`bread`", Global.database_name, Global.database_name)
             };
             for (String sql : sqls) {
                 cmd.executeUpdate(sql);
@@ -73,8 +98,10 @@ public final class Java2kbot extends JavaPlugin {
         // 注册监听器
         GlobalEventChannel.INSTANCE.registerListenerHost(new BotMain());
         // 运行面包厂生产任务
-        Thread newThread = new Thread(BreadFactory::BreadProduce);
+        Thread newThread = new Thread(BreadFactory::MaterialProduce);
         newThread.start();
+        Thread newThread1 = new Thread(BreadFactory::BreadProduce);
+        newThread1.start();
         // 更新列表
         Update.Execute();
     }

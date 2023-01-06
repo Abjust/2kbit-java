@@ -14,7 +14,6 @@ package com.java_2kbot;
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.ContactList;
 import net.mamoe.mirai.contact.NormalMember;
-
 import java.sql.*;
 import java.util.Objects;
 
@@ -390,7 +389,7 @@ public class Admin {
     // 给全局OP功能
     public static void G_Op(long executor, long victim, long group) {
         if (executor == Global.owner_qq || Global.g_ops != null && Global.g_ops.contains(Long.toString(executor))) {
-            if (!Global.g_ops.contains(Long.toString(victim))) {
+            if (Global.g_ops == null || !Global.g_ops.contains(Long.toString(victim))) {
                 try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
                     Statement cmd = msc.createStatement();
                     cmd.executeUpdate(String.format("INSERT INTO `%s`.`g_ops` (qid) VALUES (%s);", Global.database_name, victim));

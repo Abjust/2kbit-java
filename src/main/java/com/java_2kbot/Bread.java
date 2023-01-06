@@ -32,7 +32,8 @@ public class Bread {
             String sql = String.format("SELECT COUNT(*) gid FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group);
             ResultSet rs = cmd.executeQuery(sql);
             if (!rs.isBeforeFirst()) {
-                cmd.executeUpdate(String.format("INSERT INTO `%s`.`bread` (qid) VALUES (%s);", Global.database_name, group));
+                cmd.executeUpdate(String.format("INSERT INTO `%s`.`bread` (gid) VALUES (%s);", Global.database_name, group));
+                cmd.executeUpdate(String.format("INSERT INTO `%s`.`material` (gid) VALUES (%s);", Global.database_name, group));
                 try {
                     Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("成功为本群建造面包厂！");
                 } catch (Exception ex) {
@@ -58,7 +59,7 @@ public class Bread {
             try {
                 while (rs.next()) {
                     if (rs.getInt("bread_diversity") == 0) {
-                        if (number + rs.getInt("breads") <= (int) (32 * Math.pow(4, rs.getInt("factory_level") - 1) * Math.pow(2, rs.getInt("storage_upgraded")))) {
+                        if (number >= 1 && number + rs.getInt("breads") <= (int) (32 * Math.pow(4, rs.getInt("factory_level") - 1) * Math.pow(2, rs.getInt("storage_upgraded")))) {
                             try (Connection msc1 = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
                                 Statement cmd1 = msc1.createStatement();
                                 cmd1.executeUpdate(String.format("UPDATE `%s`.`bread` SET breads = %s WHERE gid = %s;", Global.database_name, rs.getInt("breads") + number, group));
@@ -79,6 +80,12 @@ public class Bread {
                             } catch (SQLException e) {
                                 throw new RuntimeException(e);
                             }
+                        } else if (number < 1) {
+                            try {
+                                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("这样的数字是没有意义的。。。");
+                            } catch (Exception ex) {
+                                System.out.println("群消息发送失败");
+                            }
                         } else {
                             try {
                                 Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("抱歉，库存已经满了。。。");
@@ -88,7 +95,7 @@ public class Bread {
                         }
                     } else {
                         try {
-                            Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("在开启多样化生产模式的情况下，你不能给2kbot面包！");
+                            Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("除非本群供应模式为“单一化供应”，否则你无法给予2kbot面包！");
                         } catch (Exception ex) {
                             System.out.println("群消息发送失败");
                         }
@@ -113,82 +120,214 @@ public class Bread {
             ResultSet rs = cmd.executeQuery();
             try {
                 while (rs.next()) {
-                    if (rs.getInt("breads") >= number) {
-                        if (rs.getInt("bread_diversity") == 1) {
-                            List<String> bread_types = new ArrayList<>() {
-                                {
-                                    add("🍞");
-                                    add("🥖");
-                                    add("🥐");
-                                    add("🥯");
-                                    add("🍩");
-                                }
-                            };
-                            if (number >= bread_types.size()) {
-                                Random rnd = new Random();
-                                int[] fields = new int[bread_types.size()];
-                                int sum = 0;
-                                for (int i = 0; i < fields.length - 1; i++) {
-                                    fields[i] = rnd.nextInt(number);
-                                    sum += fields[i];
-                                }
-                                int actualSum = sum * fields.length / (fields.length - 1);
-                                sum = 0;
-                                for (int i = 0; i < fields.length - 1; i++) {
-                                    fields[i] = fields[i] * number / actualSum;
-                                    sum += fields[i];
-                                }
-                                fields[fields.length - 1] = number - sum;
-                                StringBuilder text = new StringBuilder();
-                                for (int i = 0; i < bread_types.size(); i++) {
-                                    if (i == 0) {
-                                        text = new StringBuilder(String.format("\n%s*%s", bread_types.get(i), fields[i]));
-                                    } else {
-                                        text.append(String.format("\n%s*%s", bread_types.get(i), fields[i]));
+                    if (rs.getInt("bread_diversity") != 2) {
+                        if (rs.getInt("breads") >= number) {
+                            if (rs.getInt("bread_diversity") == 1) {
+                                List<String> bread_types = new ArrayList<>() {
+                                    {
+                                        add("🍞");
+                                        add("🥖");
+                                        add("🥐");
+                                        add("🥯");
+                                        add("🍩");
                                     }
-                                }
-                                MessageChain messageChain = new MessageChainBuilder()
-                                        .append(new At(executor))
-                                        .append(text)
-                                        .build();
-                                try (Connection msc1 = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
-                                    Statement cmd1 = msc1.createStatement();
-                                    cmd1.executeUpdate(String.format("UPDATE `%s`.`bread` SET breads = %s WHERE gid = %s;", Global.database_name, rs.getInt("breads") - number, group));
+                                };
+                                if (number >= bread_types.size()) {
+                                    Random rnd = new Random();
+                                    int[] fields = new int[bread_types.size()];
+                                    int sum = 0;
+                                    for (int i = 0; i < fields.length - 1; i++) {
+                                        fields[i] = rnd.nextInt(number);
+                                        sum += fields[i];
+                                    }
+                                    int actualSum = sum * fields.length / (fields.length - 1);
+                                    sum = 0;
+                                    for (int i = 0; i < fields.length - 1; i++) {
+                                        fields[i] = fields[i] * number / actualSum;
+                                        sum += fields[i];
+                                    }
+                                    fields[fields.length - 1] = number - sum;
+                                    StringBuilder text = new StringBuilder();
+                                    for (int i = 0; i < bread_types.size(); i++) {
+                                        if (i == 0) {
+                                            text = new StringBuilder(String.format("\n%s*%s", bread_types.get(i), fields[i]));
+                                        } else {
+                                            text.append(String.format("\n%s*%s", bread_types.get(i), fields[i]));
+                                        }
+                                    }
+                                    MessageChain messageChain = new MessageChainBuilder()
+                                            .append(new At(executor))
+                                            .append(text)
+                                            .build();
+                                    try (Connection msc1 = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
+                                        Statement cmd1 = msc1.createStatement();
+                                        cmd1.executeUpdate(String.format("UPDATE `%s`.`bread` SET breads = %s WHERE gid = %s;", Global.database_name, rs.getInt("breads") - number, group));
+                                        try {
+                                            Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(messageChain);
+                                        } catch (Exception ex) {
+                                            System.out.println("群消息发送失败");
+                                        }
+                                    } catch (SQLException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                } else {
                                     try {
-                                        Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(messageChain);
+                                        Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("你请求进货的面包数太少了！（至少要有 %s 块）", bread_types.size()));
                                     } catch (Exception ex) {
                                         System.out.println("群消息发送失败");
                                     }
-                                } catch (SQLException e) {
-                                    throw new RuntimeException(e);
                                 }
                             } else {
-                                try {
-                                    Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("你请求进货的面包数太少了！（至少要有 %s 块）", bread_types.size()));
-                                } catch (Exception ex) {
-                                    System.out.println("群消息发送失败");
+                                if (number >= 1) {
+                                    try (Connection msc1 = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
+                                        Statement cmd1 = msc1.createStatement();
+                                        cmd1.executeUpdate(String.format("UPDATE `%s`.`bread` SET breads = %s WHERE gid = %s;", Global.database_name, rs.getInt("breads") - number, group));
+                                        MessageChain messageChain = new MessageChainBuilder()
+                                                .append(new At(executor))
+                                                .append(String.format(" 🍞*%s", number))
+                                                .build();
+                                        try {
+                                            Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(messageChain);
+                                        } catch (Exception ex) {
+                                            System.out.println("群消息发送失败");
+                                        }
+                                    } catch (SQLException e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                } else {
+                                    try {
+                                        Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("这样的数字是没有意义的。。。");
+                                    } catch (Exception ex) {
+                                        System.out.println("群消息发送失败");
+                                    }
                                 }
                             }
                         } else {
-                            try (Connection msc1 = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
-                                Statement cmd1 = msc1.createStatement();
-                                cmd1.executeUpdate(String.format("UPDATE `%s`.`bread` SET breads = %s WHERE gid = %s;", Global.database_name, rs.getInt("breads") - number, group));
-                                MessageChain messageChain = new MessageChainBuilder()
-                                        .append(new At(executor))
-                                        .append(String.format(" 🍞*%s", number))
-                                        .build();
-                                try {
-                                    Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(messageChain);
-                                } catch (Exception ex) {
-                                    System.out.println("群消息发送失败");
-                                }
-                            } catch (SQLException e) {
-                                throw new RuntimeException(e);
+                            try {
+                                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("抱歉，面包不够了。。。");
+                            } catch (Exception ex) {
+                                System.out.println("群消息发送失败");
                             }
                         }
                     } else {
+                        if (number >= 1) {
+                            MessageChain messageChain = new MessageChainBuilder()
+                                    .append(new At(executor))
+                                    .append(String.format(" 🍞*%s", number))
+                                    .build();
+                            try {
+                                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(messageChain);
+                            } catch (Exception ex) {
+                                System.out.println("群消息发送失败");
+                            }
+                        } else {
+                            try {
+                                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("这样的数字是没有意义的。。。");
+                            } catch (Exception ex) {
+                                System.out.println("群消息发送失败");
+                            }
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                try {
+                    Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("本群还没有面包厂！");
+                } catch (Exception ex1) {
+                    System.out.println("群消息发送失败");
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    // 查询面包厂信息
+    public static void Query(long group, long executor) {
+        try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
+            PreparedStatement cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`material` WHERE gid = %s;", Global.database_name, group));
+            ResultSet rs = cmd.executeQuery();
+            try {
+                while (rs.next()) {
+                    int flour = rs.getInt("flour");
+                    int egg = rs.getInt("egg");
+                    int yeast = rs.getInt("yeast");
+                    rs.close();
+                    cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group));
+                    rs = cmd.executeQuery();
+                    while (rs.next()) {
+                        String mode = switch (rs.getInt("bread_diversity")) {
+                            case 2 -> "无限供应";
+                            case 1 -> "多样化供应";
+                            case 0 -> "单一化供应";
+                            default -> "";
+                        };
+                        boolean is_maxlevel = rs.getInt("factory_level") == breadfactory_maxlevel;
+                        MessageChain messageChain;
+                        if (is_maxlevel) {
+                            messageChain = new MessageChainBuilder()
+                                    .append(new At(executor))
+                                    .append(String.format("""
+                                                    \n
+                                                    本群 (%s) 面包厂信息如下：
+                                                    -----面包厂属性-----
+                                                    面包厂等级：%s / %s 级
+                                                    库存升级次数：%s 次
+                                                    面包厂经验：%s / %s XP
+                                                    今日已获得经验：%s / %s XP
+                                                    生产（供应）模式：%s
+                                                    -----物品库存-----
+                                                    现有原材料：%s 份面粉、%s 份鸡蛋、%s 份酵母
+                                                    现有面包：%s / %s 块
+                                                    """,
+                                            group,
+                                            rs.getInt("factory_level"),
+                                            breadfactory_maxlevel,
+                                            rs.getInt("storage_upgraded"),
+                                            rs.getInt("factory_exp"),
+                                            (int)(2000 * Math.pow(1.28, rs.getInt("storage_upgraded"))),
+                                            rs.getInt("exp_gained_today"),
+                                            (int)(300 * Math.pow(2, rs.getInt("factory_level") - 1)),
+                                            mode,
+                                            flour,
+                                            egg,
+                                            yeast,
+                                            rs.getInt("breads"),
+                                            (int)(32 * Math.pow(4, rs.getInt("factory_level") - 1) * Math.pow(2, rs.getInt("storage_upgraded")))))
+                                    .build();
+                        } else {
+                            messageChain = new MessageChainBuilder()
+                                    .append(new At(executor))
+                                    .append(String.format("""
+                                            \n
+                                            本群 (%s) 面包厂信息如下：
+                                            -----面包厂属性-----
+                                            面包厂等级：%s / %s 级
+                                            库存升级次数：%s 次
+                                            面包厂经验：%s / %s XP
+                                            今日已获得经验：%s / %s XP
+                                            生产（供应）模式：%s
+                                            -----物品库存-----
+                                            现有原材料：%s 份面粉、%s 份鸡蛋、%s 份酵母
+                                            现有面包：%s / %s 块
+                                            """,
+                                            group,
+                                            rs.getInt("factory_level"),
+                                            breadfactory_maxlevel,
+                                            rs.getInt("storage_upgraded"),
+                                            rs.getInt("factory_exp"),
+                                            (int)(900 * Math.pow(2, rs.getInt("factory_level") - 1)),
+                                            rs.getInt("exp_gained_today"),
+                                            (int)(300 * Math.pow(2, rs.getInt("factory_level") - 1)),
+                                            mode,
+                                            flour,
+                                            egg,
+                                            yeast,
+                                            rs.getInt("breads"),
+                                            (int)(32 * Math.pow(4, rs.getInt("factory_level") - 1) * Math.pow(2, rs.getInt("storage_upgraded")))))
+                                    .build();
+                        }
                         try {
-                            Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("抱歉，面包不够了。。。");
+                            Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(messageChain);
                         } catch (Exception ex) {
                             System.out.println("群消息发送失败");
                         }
@@ -206,37 +345,8 @@ public class Bread {
         }
     }
 
-    // 查询面包库存
-    public static void Query(long group, long executor) {
-        try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
-            PreparedStatement cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group));
-            ResultSet rs = cmd.executeQuery();
-            try {
-                while (rs.next()) {
-                    MessageChain messageChain = new MessageChainBuilder()
-                            .append(new At(executor))
-                            .append(String.format(" 现在库存有 %s 块面包，本群面包厂目前最多可储存 %s 块面包", rs.getInt("breads"), (int) (32 * Math.pow(4, rs.getInt("factory_level") - 1) * Math.pow(2, rs.getInt("storage_upgraded")))))
-                            .build();
-                    try {
-                        Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(messageChain);
-                    } catch (Exception ex1) {
-                        System.out.println("群消息发送失败");
-                    }
-                }
-            } catch (Exception ex) {
-                try {
-                    Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("本群还没有面包厂！");
-                } catch (Exception ex1) {
-                    System.out.println("群消息发送失败");
-                }
-            }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    // 多样化生产
-    public static void Diversity(long group, int status) {
+    // 修改生产模式
+    public static void ChangeMode(long group, int mode) {
         try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
             Statement cmd = msc.createStatement();
             String sql = String.format("SELECT COUNT(*) gid FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group);
@@ -246,20 +356,28 @@ public class Bread {
                 PreparedStatement cmd1 = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group));
                 rs = cmd1.executeQuery();
                 if (rs.getInt("breads") == 0) {
-                    if (status == 1) {
-                        cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET bread_diversity = 1 WHERE gid = %s", Global.database_name, group));
-                        try {
-                            Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("已为本群启用多样化生产！");
-                        } catch (Exception ex) {
-                            System.out.println("群消息发送失败");
-                        }
-                    } else {
-                        cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET bread_diversity = 0 WHERE gid = %s", Global.database_name, group));
-                        try {
-                            Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("已为本群禁用多样化生产！");
-                        } catch (Exception ex) {
-                            System.out.println("群消息发送失败");
-                        }
+                    switch (mode) {
+                        case 2:
+                            cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET bread_diversity = 2 WHERE gid = %s", Global.database_name, group));
+                            try {
+                                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("已将本群供应模式修改为：无限供应");
+                            } catch (Exception ex) {
+                                System.out.println("群消息发送失败");
+                            }
+                        case 1:
+                            cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET bread_diversity = 1 WHERE gid = %s", Global.database_name, group));
+                            try {
+                                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("已将本群供应模式修改为：多样化供应");
+                            } catch (Exception ex) {
+                                System.out.println("群消息发送失败");
+                            }
+                        case 0:
+                            cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET bread_diversity = 0 WHERE gid = %s", Global.database_name, group));
+                            try {
+                                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("已将本群供应模式修改为：单一化供应");
+                            } catch (Exception ex) {
+                                System.out.println("群消息发送失败");
+                            }
                     }
                 } else {
                     try {
@@ -396,20 +514,29 @@ public class Bread {
                 PreparedStatement cmd1 = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group));
                 rs = cmd1.executeQuery();
                 while (rs.next()) {
+                    int exp_formula = (int)(2000 * Math.pow(1.28, rs.getInt("storage_upgraded")));
                     if (rs.getInt("factory_level") == breadfactory_maxlevel) {
-                        if (rs.getInt("factory_exp") >= 2000) {
-                            cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET storage_upgraded = %s, factory_exp = %s WHERE gid = %s;", Global.database_name, rs.getInt("storage_upgraded") + 1, rs.getInt("factory_exp") - 2000, group));
-                            rs.close();
-                            cmd1 = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group));
-                            rs = cmd1.executeQuery();
-                            try {
-                                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("恭喜，本群面包厂库存升级成功辣！现在面包厂可以储存 %s 块面包", (int) (32 * Math.pow(4, rs.getInt("factory_level") - 1) * Math.pow(2, rs.getInt("storage_upgraded")))));
-                            } catch (Exception ex) {
-                                System.out.println("群消息发送失败");
+                        if (rs.getInt("factory_exp") >= exp_formula) {
+                            if (rs.getInt("storage_upgraded") < 16) {
+                                cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET storage_upgraded = %s, factory_exp = %s WHERE gid = %s;", Global.database_name, rs.getInt("storage_upgraded") + 1, rs.getInt("factory_exp") - exp_formula, group));
+                                rs.close();
+                                cmd1 = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group));
+                                rs = cmd1.executeQuery();
+                                try {
+                                    Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("恭喜，本群面包厂库存升级成功辣！现在面包厂可以储存 %s 块面包", (int) (32 * Math.pow(4, rs.getInt("factory_level") - 1) * Math.pow(2, rs.getInt("storage_upgraded")))));
+                                } catch (Exception ex) {
+                                    System.out.println("群消息发送失败");
+                                }
+                            } else {
+                                try {
+                                    Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("本群面包厂库存已经无法再升级了！（tips：目前本群面包厂的库存已经可以存放2^30块面包了！）");
+                                } catch (Exception ex) {
+                                    System.out.println("群消息发送失败");
+                                }
                             }
                         } else {
                             try {
-                                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("很抱歉，目前本群还需要 %s 经验才能升级", 2000 - rs.getInt("factory_exp")));
+                                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("很抱歉，目前本群还需要 %s 经验才能升级", exp_formula - rs.getInt("factory_exp")));
                             } catch (Exception ex) {
                                 System.out.println("群消息发送失败");
                             }

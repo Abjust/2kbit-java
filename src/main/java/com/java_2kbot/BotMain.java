@@ -12,12 +12,12 @@
 
 package com.java_2kbot;
 
+import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.event.EventHandler;
 import net.mamoe.mirai.event.SimpleListenerHost;
 import net.mamoe.mirai.event.events.*;
 import net.mamoe.mirai.message.data.*;
 import net.mamoe.mirai.utils.ExternalResource;
-
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
@@ -32,12 +32,14 @@ public class BotMain extends SimpleListenerHost {
     @EventHandler
     private void onEvent(NudgeEvent event) {
         if (event.getTarget().equals(Global.bot_qq) && event.getSubject().equals("Group")) {
-            try {
-                event.getSubject().sendMessage("握草泥马呀—\n我操尼玛啊啊啊啊—\n我—操—你—妈—\n听到没，我—操—你—妈—");
-            } catch (Exception e) {
-                System.out.println("握草泥马呀—\n我操尼玛啊啊啊啊—\n我—操—你—妈—\n听到没，我—操—你—妈—");
-            }
+            Zuan.Execute(0, 0, null, event);
         }
+    }
+
+    // bot被加好友
+    @EventHandler
+    private void onEvent(NewFriendRequestEvent event) {
+        event.accept();
     }
 
     // bot加群
@@ -126,7 +128,42 @@ public class BotMain extends SimpleListenerHost {
         }
     }
 
-    // bot对接收消息的处理
+    // bot对接收私聊消息的处理
+    @EventHandler
+    private void onEvent(FriendMessageEvent event) {
+        if (event.getSender().getId() != Global.owner_qq) {
+            MessageChain messageChain = new MessageChainBuilder()
+                    .append(String.format("消息来自：%s (%s)\n消息内容：", event.getSender().getNick(), event.getSender().getId()))
+                    .build();
+            messageChain.addAll(event.getMessage());
+            Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getFriend(Global.owner_qq)).sendMessage(messageChain);
+            Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getFriend(Global.owner_qq)).sendMessage("你可以使用/send <目标QQ> <消息>来发送私聊消息");
+        } else if (event.getSender().getId() == Global.owner_qq && event.getMessage().contentToString().startsWith("/send")) {
+            String[] result = event.getMessage().contentToString().split(" ");
+            if (result.length > 2) {
+                try {
+                    StringBuilder results = new StringBuilder();
+                    for (int i = 2; i < result.length; i++) {
+                        if (i == 2) {
+                            results = new StringBuilder(result[i]);
+                        } else {
+                            results.append(" ").append(result[i]);
+                        }
+                    }
+                    try {
+                        Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getFriend(Long.parseLong(result[1]))).sendMessage(String.valueOf(results));
+                    } catch (Exception ex) {
+                        event.getSender().sendMessage("私聊消息发送失败");
+                    }
+                } catch (Exception ex) {
+                    event.getSender().sendMessage("参数错误");
+                }
+            } else {
+                event.getSender().sendMessage("参数错误");
+            }
+        }
+    }
+    // bot对接收群消息的处理
     @EventHandler
     private void onEvent(GroupMessageEvent event) {
         if ((event.getSender().getId() != Global.bot_qq && (Global.ignores == null || !Global.ignores.contains(String.format("%s_%s", event.getGroup().getId(), event.getSender().getId()))) && (Global.g_ignores == null || !Global.g_ignores.contains(Long.toString(event.getSender().getId()))))) {
@@ -149,15 +186,16 @@ public class BotMain extends SimpleListenerHost {
                             break;
                         } catch (Exception ignored) {
                         }
-                    case "!bread_diversity":
+                    case "!change_mode":
                         switch (command[1]) {
-                            case "on" -> Bread.Diversity(event.getGroup().getId(), 1);
-                            case "off" -> Bread.Diversity(event.getGroup().getId(), 0);
+                            case "infinite" -> Bread.ChangeMode(event.getGroup().getId(), 2);
+                            case "diversity" -> Bread.ChangeMode(event.getGroup().getId(), 1);
+                            case "normal" -> Bread.ChangeMode(event.getGroup().getId(), 0);
                         }
                 }
             } else {
                 switch (command[0]) {
-                    case "!querybread" -> Bread.Query(event.getGroup().getId(), event.getSender().getId());
+                    case "!query" -> Bread.Query(event.getGroup().getId(), event.getSender().getId());
                     case "!upgrade_factory" -> Bread.UpgradeFactory(event.getGroup().getId());
                     case "!build_factory" -> Bread.BuildFactory(event.getGroup().getId());
                     case "!upgrade_storage" -> Bread.UpgradeStorage(event.getGroup().getId());
@@ -290,7 +328,7 @@ public class BotMain extends SimpleListenerHost {
             // 精神心理疾病科普
             MentalHealth.Execute(event.getGroup().getId(), event.getMessage());
             // 处理“你就是歌姬吧”（祖安）
-            Zuan.Execute(event.getGroup().getId(), event.getSender().getId(), event.getMessage());
+            Zuan.Execute(event.getGroup().getId(), event.getSender().getId(), event.getMessage(), null);
             // 群管功能
             // 禁言
             if (s.startsWith("!mute") && !s.startsWith("!muteme")) {
@@ -738,7 +776,7 @@ public class BotMain extends SimpleListenerHost {
                 Random r = new Random();
                 int random = r.nextInt(splashes.size());
                 try {
-                    event.getGroup().sendMessage(String.format("机器人版本：1.0.8-je\n上次更新日期：2022/12/13\n更新内容：同步了2kbot b_22w25d更新的功能修复\n---------\n%s", splashes.get(random)));
+                    event.getGroup().sendMessage(String.format("机器人版本：1.0.9-je\n上次更新日期：2023/1/6\n更新内容：同步了2kbot b_23w01a更新的功能修复\n---------\n%s", splashes.get(random)));
                 } catch (Exception e) {
                     System.out.println("群消息发送失败");
                 }

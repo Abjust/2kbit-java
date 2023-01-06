@@ -79,8 +79,8 @@ public class Help {
                         建造面包厂（初始化）：!build_factory
                         给2kbot面包： !givebread <数量>
                         向2kbot要面包：!getbread <数量>
-                        查询面包库存：!querybread
-                        改变多样化生产状态：!bread_diversity <on/off>
+                        查询面包厂信息：!query
+                        修改生产（供应）模式：!change_mode <infinite/diversity/normal> （无限、多样化、单一化）
                         升级面包厂：!upgrade_factory
                         升级库存（满级后）：!upgrade_storage
                         """);
