@@ -8,7 +8,7 @@
 
 1.[Mirai Console Loader](https://github.com/iTXTech/mirai-console-loader)
 
-2.[IntelliJ IDEA](https://www.jetbrains.com/idea/download/other.html)（建议安装Community Edition 2022.3.1）
+2.[IntelliJ IDEA](https://www.jetbrains.com/idea/download)（建议安装Community Edition 2022.3.1）
 
 3.[MySQL Server](https://dev.mysql.com/downloads/installer/)
 
