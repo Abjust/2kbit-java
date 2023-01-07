@@ -199,6 +199,8 @@ public class BotMain extends SimpleListenerHost {
                     case "!upgrade_factory" -> Bread.UpgradeFactory(event.getGroup().getId());
                     case "!build_factory" -> Bread.BuildFactory(event.getGroup().getId());
                     case "!upgrade_storage" -> Bread.UpgradeStorage(event.getGroup().getId());
+                    case "!upgrade_speed" -> Bread.UpgradeSpeed(event.getGroup().getId());
+                    case "!upgrade_output" -> Bread.UpgradeOutput(event.getGroup().getId());
                 }
             }
             String s = event.getMessage().contentToString();
@@ -776,7 +778,7 @@ public class BotMain extends SimpleListenerHost {
                 Random r = new Random();
                 int random = r.nextInt(splashes.size());
                 try {
-                    event.getGroup().sendMessage(String.format("机器人版本：1.0.9-je\n上次更新日期：2023/1/6\n更新内容：同步了2kbot b_23w01a更新的功能修复\n---------\n%s", splashes.get(random)));
+                    event.getGroup().sendMessage(String.format("机器人版本：1.1.0-je\n上次更新日期：2023/1/7\n更新内容：同步了2kbot b_23w02b更新的功能修复\n---------\n%s", splashes.get(random)));
                 } catch (Exception e) {
                     System.out.println("群消息发送失败");
                 }

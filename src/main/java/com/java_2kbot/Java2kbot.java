@@ -66,7 +66,9 @@ public final class Java2kbot extends JavaPlugin {
                             `gid` varchar(10) NOT NULL COMMENT 'Q群号',
                             `factory_level` int NOT NULL DEFAULT '1' COMMENT '面包厂等级',
                             `storage_upgraded` int NOT NULL DEFAULT '0' COMMENT '库存升级次数',
-                            `bread_diversity` tinyint NOT NULL DEFAULT '0' COMMENT '多样化生产状态',
+                            `speed_upgraded` int NOT NULL DEFAULT '0' COMMENT '生产速度升级次数',
+                            `output_upgraded` int NOT NULL DEFAULT '0' COMMENT '产量升级次数',
+                            `factory_mode` tinyint NOT NULL DEFAULT '0' COMMENT '面包厂生产模式',
                             `factory_exp` int NOT NULL DEFAULT '0' COMMENT '面包厂经验',
                             `breads` int NOT NULL DEFAULT '0' COMMENT '面包库存',
                             `exp_gained_today` int NOT NULL DEFAULT '0' COMMENT '近24小时获取经验数',
@@ -90,6 +92,15 @@ public final class Java2kbot extends JavaPlugin {
             for (String sql : sqls) {
                 cmd.executeUpdate(sql);
             }
+            // 更新数据表
+            try {
+                cmd.executeUpdate(String.format("""
+                    ALTER TABLE `%s`.`bread`
+                    ADD COLUMN `speed_upgraded` INT NOT NULL DEFAULT 0 COMMENT '生产速度升级次数' AFTER `storage_upgraded`,
+                    ADD COLUMN `output_upgraded` INT NOT NULL DEFAULT 0 COMMENT '产量升级次数' AFTER `speed_upgraded`,
+                    CHANGE COLUMN `bread_diversity` `factory_mode` TINYINT NOT NULL DEFAULT '0' COMMENT '面包厂生产模式' ;
+                    """, Global.database_name));
+            } catch (Exception ignored) { }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

@@ -41,18 +41,18 @@ public class BreadFactory {
                         cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = %s", Global.database_name, group_id));
                         rs = cmd.executeQuery();
                         while (rs.next()) {
-                            int formula = (int) Math.pow(4, rs.getInt("factory_level"));
-                            int maxstorage = (int) (32 * Math.pow(4, rs.getInt("factory_level") - 1) * Math.pow(2, rs.getInt("storage_upgraded")));
+                            int formula = (int)Math.pow(4, rs.getInt("factory_level")) * (int)Math.pow(2, rs.getInt("output_upgraded"));
+                            int maxstorage = (int)(64 * Math.pow(4, rs.getInt("factory_level") - 1) * Math.pow(2, rs.getInt("storage_upgraded")));
                             boolean is_full = rs.getInt("breads") == maxstorage;
-                            speed1 = 300 - (20 * (rs.getInt("factory_level") - 1));
-                            if (rs.getInt("bread_diversity") != 2 && !is_full) {
+                            speed1 = 300 - (20 * (rs.getInt("factory_level") - 1)) - (10 * (rs.getInt("speed_upgraded")));
+                            if (rs.getInt("factory_mode") != 2 && !is_full) {
                                 Random r = new Random();
                                 int random = r.nextInt(1, formula);
                                 rs.close();
                                 cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`material` WHERE gid = %s", Global.database_name, group_id));
                                 rs = cmd.executeQuery();
                                 while (rs.next()) {
-                                    if (Global.time_now - rs.getLong("last_produce") >= speed1) {
+                                    if (Global.time_now - rs.getLong("last_produce") >= speed1 && rs.getInt("yeast") <= formula) {
                                         Statement cmd1 = msc.createStatement();
                                         cmd1.executeUpdate(String.format("UPDATE material SET flour = %s, egg = %s, yeast = %s, last_produce = %s WHERE gid = %s;", rs.getInt("flour") + random * 5, rs.getInt("egg") + random * 2, rs.getInt("yeast") + random, Global.time_now, group_id));
                                     }
@@ -92,10 +92,10 @@ public class BreadFactory {
                         cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = %s", Global.database_name, group_id));
                         rs = cmd.executeQuery();
                         while (rs.next()) {
-                            if (rs.getInt("bread_diversity") != 2) {
-                                speed2 = 300 - (20 * (rs.getInt("factory_level") - 1));
-                                int maxstorage = (int) (32 * Math.pow(4, rs.getInt("factory_level") - 1) * Math.pow(2, rs.getInt("storage_upgraded")));
-                                int bread_diversity = rs.getInt("bread_diversity");
+                            if (rs.getInt("factory_mode") != 2) {
+                                speed2 = 300 - (20 * (rs.getInt("factory_level") - 1)) - (10 * (rs.getInt("speed_upgraded")));
+                                int maxstorage = (int) (64 * Math.pow(4, rs.getInt("factory_level") - 1) * Math.pow(2, rs.getInt("storage_upgraded")));
+                                int bread_diversity = rs.getInt("factory_mode");
                                 rs.close();
                                 int random = 0;
                                 Random r = new Random();

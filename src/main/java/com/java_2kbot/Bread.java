@@ -58,8 +58,8 @@ public class Bread {
             ResultSet rs = cmd.executeQuery();
             try {
                 while (rs.next()) {
-                    if (rs.getInt("bread_diversity") == 0) {
-                        if (number >= 1 && number + rs.getInt("breads") <= (int) (32 * Math.pow(4, rs.getInt("factory_level") - 1) * Math.pow(2, rs.getInt("storage_upgraded")))) {
+                    if (rs.getInt("factory_mode") == 0) {
+                        if (number >= 1 && number + rs.getInt("breads") <= (int) (64 * Math.pow(4, rs.getInt("factory_level") - 1) * Math.pow(2, rs.getInt("storage_upgraded")))) {
                             try (Connection msc1 = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
                                 Statement cmd1 = msc1.createStatement();
                                 cmd1.executeUpdate(String.format("UPDATE `%s`.`bread` SET breads = %s WHERE gid = %s;", Global.database_name, rs.getInt("breads") + number, group));
@@ -120,9 +120,9 @@ public class Bread {
             ResultSet rs = cmd.executeQuery();
             try {
                 while (rs.next()) {
-                    if (rs.getInt("bread_diversity") != 2) {
+                    if (rs.getInt("factory_mode") != 2) {
                         if (rs.getInt("breads") >= number) {
-                            if (rs.getInt("bread_diversity") == 1) {
+                            if (rs.getInt("factory_mode") == 1) {
                                 List<String> bread_types = new ArrayList<>() {
                                     {
                                         add("🍞");
@@ -137,13 +137,7 @@ public class Bread {
                                     int[] fields = new int[bread_types.size()];
                                     int sum = 0;
                                     for (int i = 0; i < fields.length - 1; i++) {
-                                        fields[i] = rnd.nextInt(number);
-                                        sum += fields[i];
-                                    }
-                                    int actualSum = sum * fields.length / (fields.length - 1);
-                                    sum = 0;
-                                    for (int i = 0; i < fields.length - 1; i++) {
-                                        fields[i] = fields[i] * number / actualSum;
+                                        fields[i] = rnd.nextInt(1, number - sum);
                                         sum += fields[i];
                                     }
                                     fields[fields.length - 1] = number - sum;
@@ -255,7 +249,7 @@ public class Bread {
                     cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group));
                     rs = cmd.executeQuery();
                     while (rs.next()) {
-                        String mode = switch (rs.getInt("bread_diversity")) {
+                        String mode = switch (rs.getInt("factory_mode")) {
                             case 2 -> "无限供应";
                             case 1 -> "多样化供应";
                             case 0 -> "单一化供应";
@@ -270,29 +264,38 @@ public class Bread {
                                                     \n
                                                     本群 (%s) 面包厂信息如下：
                                                     -----面包厂属性-----
-                                                    面包厂等级：%s / %s 级
+                                                    面包厂等级：%s 级（满级）
                                                     库存升级次数：%s 次
-                                                    面包厂经验：%s / %s XP
+                                                    生产速度升级次数：%s 次
+                                                    产量升级次数：%s 次
+                                                    面包厂经验：%s XP
                                                     今日已获得经验：%s / %s XP
                                                     生产（供应）模式：%s
+                                                    -----面包厂配置-----
+                                                    面包库存上限：%s 块
+                                                    生产周期：%s 秒
+                                                    每周期最大产量：%s 块
                                                     -----物品库存-----
                                                     现有原材料：%s 份面粉、%s 份鸡蛋、%s 份酵母
                                                     现有面包：%s / %s 块
                                                     """,
                                             group,
-                                            rs.getInt("factory_level"),
                                             breadfactory_maxlevel,
                                             rs.getInt("storage_upgraded"),
+                                            rs.getInt("speed_upgraded"),
+                                            rs.getInt("output_upgraded"),
                                             rs.getInt("factory_exp"),
-                                            (int)(2000 * Math.pow(1.28, rs.getInt("storage_upgraded"))),
                                             rs.getInt("exp_gained_today"),
                                             (int)(300 * Math.pow(2, rs.getInt("factory_level") - 1)),
                                             mode,
+                                            (int)(64 * Math.pow(4, rs.getInt("factory_level") - 1)) * Math.pow(2, rs.getInt("storage_upgraded")),
+                                            300 - (20 * (rs.getInt("factory_level") - 1)) - (10 * (rs.getInt("speed_upgraded"))),
+                                            (int)Math.pow(4, rs.getInt("factory_level")) * (int)Math.pow(2, rs.getInt("output_upgraded")),
                                             flour,
                                             egg,
                                             yeast,
                                             rs.getInt("breads"),
-                                            (int)(32 * Math.pow(4, rs.getInt("factory_level") - 1) * Math.pow(2, rs.getInt("storage_upgraded")))))
+                                            (int)(64 * Math.pow(4, rs.getInt("factory_level") - 1) * Math.pow(2, rs.getInt("storage_upgraded")))))
                                     .build();
                         } else {
                             messageChain = new MessageChainBuilder()
@@ -302,10 +305,13 @@ public class Bread {
                                             本群 (%s) 面包厂信息如下：
                                             -----面包厂属性-----
                                             面包厂等级：%s / %s 级
-                                            库存升级次数：%s 次
                                             面包厂经验：%s / %s XP
                                             今日已获得经验：%s / %s XP
                                             生产（供应）模式：%s
+                                            -----面包厂配置-----
+                                            面包库存上限：%s 块
+                                            生产周期：%s 秒
+                                            每周期最大产量：%s 块
                                             -----物品库存-----
                                             现有原材料：%s 份面粉、%s 份鸡蛋、%s 份酵母
                                             现有面包：%s / %s 块
@@ -313,17 +319,19 @@ public class Bread {
                                             group,
                                             rs.getInt("factory_level"),
                                             breadfactory_maxlevel,
-                                            rs.getInt("storage_upgraded"),
                                             rs.getInt("factory_exp"),
                                             (int)(900 * Math.pow(2, rs.getInt("factory_level") - 1)),
                                             rs.getInt("exp_gained_today"),
                                             (int)(300 * Math.pow(2, rs.getInt("factory_level") - 1)),
                                             mode,
+                                            (int)(64 * Math.pow(4, rs.getInt("factory_level") - 1)),
+                                            300 - (20 * (rs.getInt("factory_level") - 1)),
+                                            (int)Math.pow(4, rs.getInt("factory_level")),
                                             flour,
                                             egg,
                                             yeast,
                                             rs.getInt("breads"),
-                                            (int)(32 * Math.pow(4, rs.getInt("factory_level") - 1) * Math.pow(2, rs.getInt("storage_upgraded")))))
+                                            (int)(64 * Math.pow(4, rs.getInt("factory_level") - 1))))
                                     .build();
                         }
                         try {
@@ -358,21 +366,21 @@ public class Bread {
                 if (rs.getInt("breads") == 0) {
                     switch (mode) {
                         case 2:
-                            cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET bread_diversity = 2 WHERE gid = %s", Global.database_name, group));
+                            cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET factory_mode = 2 WHERE gid = %s", Global.database_name, group));
                             try {
                                 Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("已将本群供应模式修改为：无限供应");
                             } catch (Exception ex) {
                                 System.out.println("群消息发送失败");
                             }
                         case 1:
-                            cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET bread_diversity = 1 WHERE gid = %s", Global.database_name, group));
+                            cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET factory_mode = 1 WHERE gid = %s", Global.database_name, group));
                             try {
                                 Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("已将本群供应模式修改为：多样化供应");
                             } catch (Exception ex) {
                                 System.out.println("群消息发送失败");
                             }
                         case 0:
-                            cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET bread_diversity = 0 WHERE gid = %s", Global.database_name, group));
+                            cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET factory_mode = 0 WHERE gid = %s", Global.database_name, group));
                             try {
                                 Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("已将本群供应模式修改为：单一化供应");
                             } catch (Exception ex) {
@@ -516,27 +524,141 @@ public class Bread {
                 while (rs.next()) {
                     int exp_formula = (int)(2000 * Math.pow(1.28, rs.getInt("storage_upgraded")));
                     if (rs.getInt("factory_level") == breadfactory_maxlevel) {
-                        if (rs.getInt("factory_exp") >= exp_formula) {
-                            if (rs.getInt("storage_upgraded") < 16) {
+                        if (rs.getInt("storage_upgraded") < 16) {
+                            if (rs.getInt("factory_exp") >= exp_formula) {
                                 cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET storage_upgraded = %s, factory_exp = %s WHERE gid = %s;", Global.database_name, rs.getInt("storage_upgraded") + 1, rs.getInt("factory_exp") - exp_formula, group));
                                 rs.close();
                                 cmd1 = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group));
                                 rs = cmd1.executeQuery();
                                 try {
-                                    Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("恭喜，本群面包厂库存升级成功辣！现在面包厂可以储存 %s 块面包", (int) (32 * Math.pow(4, rs.getInt("factory_level") - 1) * Math.pow(2, rs.getInt("storage_upgraded")))));
+                                    Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("恭喜，本群面包厂库存升级成功辣！现在面包厂可以储存 %s 块面包", (int) (64 * Math.pow(4, rs.getInt("factory_level") - 1) * Math.pow(2, rs.getInt("storage_upgraded")))));
                                 } catch (Exception ex) {
                                     System.out.println("群消息发送失败");
                                 }
                             } else {
                                 try {
-                                    Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("本群面包厂库存已经无法再升级了！（tips：目前本群面包厂的库存已经可以存放2^30块面包了！）");
+                                    Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("很抱歉，目前本群还需要 %s 经验才能升级", exp_formula - rs.getInt("factory_exp")));
                                 } catch (Exception ex) {
                                     System.out.println("群消息发送失败");
                                 }
                             }
                         } else {
                             try {
-                                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("很抱歉，目前本群还需要 %s 经验才能升级", exp_formula - rs.getInt("factory_exp")));
+                                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("本群面包厂库存已经无法再升级了！（tips：目前本群面包厂的库存已经可以存放2^30块面包了！）");
+                            } catch (Exception ex) {
+                                System.out.println("群消息发送失败");
+                            }
+                        }
+                    } else {
+                        try {
+                            Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("本群面包厂尚未满级！（tips：面包厂满级为 %s 级）", breadfactory_maxlevel));
+                        } catch (Exception ex) {
+                            System.out.println("群消息发送失败");
+                        }
+                    }
+                }
+            } else {
+                try {
+                    Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("本群还没有面包厂！");
+                } catch (Exception ex) {
+                    System.out.println("群消息发送失败");
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    // 升级生产速度
+    public static void UpgradeSpeed(long group) {
+        try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
+            Statement cmd = msc.createStatement();
+            String sql = String.format("SELECT COUNT(*) gid FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group);
+            ResultSet rs = cmd.executeQuery(sql);
+            if (rs.isBeforeFirst()) {
+                rs.close();
+                PreparedStatement cmd1 = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group));
+                rs = cmd1.executeQuery();
+                while (rs.next()) {
+                    int exp_formula = (int)(9600 * Math.pow(1.14, rs.getInt("speed_upgraded")));
+                    if (rs.getInt("factory_level") == breadfactory_maxlevel) {
+                        if (rs.getInt("speed_upgraded") < 16) {
+                            if (rs.getInt("factory_exp") >= exp_formula) {
+                                cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET speed_upgraded = %s, factory_exp = %s WHERE gid = %s;", Global.database_name, rs.getInt("speed_upgraded") + 1, rs.getInt("factory_exp") - exp_formula, group));
+                                rs.close();
+                                cmd1 = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group));
+                                rs = cmd1.executeQuery();
+                                try {
+                                    Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("恭喜，本群面包厂生产速度升级成功辣！现在面包厂的生产周期是 %s 秒", 300 - (20 * (rs.getInt("factory_level") - 1)) - (10 * (rs.getInt("speed_upgraded")))));
+                                } catch (Exception ex) {
+                                    System.out.println("群消息发送失败");
+                                }
+                            } else {
+                                try {
+                                    Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("很抱歉，目前本群还需要 %s 经验才能升级", exp_formula - rs.getInt("factory_exp")));
+                                } catch (Exception ex) {
+                                    System.out.println("群消息发送失败");
+                                }
+                            }
+                        } else {
+                            try {
+                                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("本群面包厂生产速度已经无法再升级了！（tips：目前本群面包厂的生产周期已经只有60秒了！）");
+                            } catch (Exception ex) {
+                                System.out.println("群消息发送失败");
+                            }
+                        }
+                    } else {
+                        try {
+                            Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("本群面包厂尚未满级！（tips：面包厂满级为 %s 级）", breadfactory_maxlevel));
+                        } catch (Exception ex) {
+                            System.out.println("群消息发送失败");
+                        }
+                    }
+                }
+            } else {
+                try {
+                    Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("本群还没有面包厂！");
+                } catch (Exception ex) {
+                    System.out.println("群消息发送失败");
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    // 升级产量
+    public static void UpgradeOutput(long group) {
+        try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
+            Statement cmd = msc.createStatement();
+            String sql = String.format("SELECT COUNT(*) gid FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group);
+            ResultSet rs = cmd.executeQuery(sql);
+            if (rs.isBeforeFirst()) {
+                rs.close();
+                PreparedStatement cmd1 = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group));
+                rs = cmd1.executeQuery();
+                while (rs.next()) {
+                    int exp_formula = (int)(4800 * Math.pow(1.21, rs.getInt("output_upgraded")));
+                    if (rs.getInt("factory_level") == breadfactory_maxlevel) {
+                        if (rs.getInt("output_upgraded") < 16) {
+                            if (rs.getInt("factory_exp") >= exp_formula) {
+                                cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET output_upgraded = %s, factory_exp = %s WHERE gid = %s;", Global.database_name, rs.getInt("output_upgraded") + 1, rs.getInt("factory_exp") - exp_formula, group));
+                                rs.close();
+                                cmd1 = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group));
+                                rs = cmd1.executeQuery();
+                                try {
+                                    Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("恭喜，本群面包厂产量升级成功辣！现在面包厂的每周期最大产量是 %s 块面包", (int)Math.pow(4, rs.getInt("factory_level")) * (int)Math.pow(2, rs.getInt("output_upgraded"))));
+                                } catch (Exception ex) {
+                                    System.out.println("群消息发送失败");
+                                }
+                            } else {
+                                try {
+                                    Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("很抱歉，目前本群还需要 %s 经验才能升级", exp_formula - rs.getInt("factory_exp")));
+                                } catch (Exception ex) {
+                                    System.out.println("群消息发送失败");
+                                }
+                            }
+                        } else {
+                            try {
+                                Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("本群面包厂产量已经无法再升级了！（tips：目前本群面包厂的产量最大已经可以达到2^26块面包了！）");
                             } catch (Exception ex) {
                                 System.out.println("群消息发送失败");
                             }
