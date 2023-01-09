@@ -1,4 +1,4 @@
-// 2kbot Java Edition，2kbot的Java分支版本
+// 2kbit Java Edition，2kbit的Java分支版本
 // Copyright(C) 2022 Abjust 版权所有。
 
 // 本程序是自由软件：你可以根据自由软件基金会发布的GNU Affero通用公共许可证的条款，即许可证的第3版或（您选择的）任何后来的版本重新发布它和/或修改它。。
@@ -7,12 +7,13 @@
 
 // 您应该已经收到了一份GNU Affero通用公共许可证的副本。 如果没有，请参见<https://www.gnu.org/licenses/>。
 
-// 致所有构建及修改2kbot代码片段的用户：作者（Abjust）并不承担构建2kbot代码片段（包括修改过的版本）所产生的一切风险，但是用户有权在2kbot的GitHub项目页提出issue，并有权在代码片段修复这些问题后获取这些更新，但是，作者不会对修改过的代码版本做质量保证，也没有义务修正在修改过的代码片段中存在的任何缺陷。
+// 致所有构建及修改2kbit代码片段的用户：作者（Abjust）并不承担构建2kbit代码片段（包括修改过的版本）所产生的一切风险，但是用户有权在2kbit的GitHub项目页提出issue，并有权在代码片段修复这些问题后获取这些更新，但是，作者不会对修改过的代码版本做质量保证，也没有义务修正在修改过的代码片段中存在的任何缺陷。
 
-package com.java_2kbot;
+package com.java_2kbit;
 
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.message.data.MessageChain;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 
@@ -53,51 +54,37 @@ public class Mathematics {
                 operands = formula.split("\\+");
                 try {
                     for (String number : operands) {
-                        if (Double.parseDouble(number.replace("n","")) % 1 != 0) {
+                        if (Double.parseDouble(number.replace("n", "")) % 1 != 0) {
                             is_int = false;
                             break;
                         }
                     }
-                    for (int i = 0; i < operands.length; i++)
-                    {
-                        if (is_int)
-                        {
-                            if (i == 0)
-                            {
+                    for (int i = 0; i < operands.length; i++) {
+                        if (is_int) {
+                            if (i == 0) {
                                 if (operands[i].contains("n")) {
                                     int_ans = -Integer.parseInt(operands[i]);
-                                }
-                                else {
+                                } else {
                                     int_ans = Integer.parseInt(operands[i]);
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 if (operands[i].contains("n")) {
                                     int_ans += -Integer.parseInt(operands[i]);
-                                }
-                                else {
+                                } else {
                                     int_ans += Integer.parseInt(operands[i]);
                                 }
                             }
-                        }
-                        else
-                        {
-                            if (i == 0)
-                            {
+                        } else {
+                            if (i == 0) {
                                 if (operands[i].contains("n")) {
                                     decimal_ans = BigDecimal.valueOf(-Double.parseDouble(operands[i]));
-                                }
-                                else {
+                                } else {
                                     decimal_ans = BigDecimal.valueOf(Double.parseDouble(operands[i]));
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 if (operands[i].contains("n")) {
                                     decimal_ans = decimal_ans.add(BigDecimal.valueOf(-Double.parseDouble(operands[i])));
-                                }
-                                else {
+                                } else {
                                     decimal_ans = decimal_ans.add(BigDecimal.valueOf(Double.parseDouble(operands[i])));
                                 }
                             }
@@ -123,8 +110,7 @@ public class Mathematics {
                         System.out.println("群消息发送失败");
                     }
                 }
-            }
-            else if (formula.contains("-")) {
+            } else if (formula.contains("-")) {
                 operands = formula.split("-");
                 try {
                     for (String number : operands) {
@@ -133,46 +119,32 @@ public class Mathematics {
                             break;
                         }
                     }
-                    for (int i = 0; i < operands.length; i++)
-                    {
-                        if (is_int)
-                        {
-                            if (i == 0)
-                            {
+                    for (int i = 0; i < operands.length; i++) {
+                        if (is_int) {
+                            if (i == 0) {
                                 if (operands[i].contains("n")) {
                                     int_ans = -Integer.parseInt(operands[i]);
-                                }
-                                else {
+                                } else {
                                     int_ans = Integer.parseInt(operands[i]);
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 if (operands[i].contains("n")) {
                                     int_ans -= -Integer.parseInt(operands[i]);
-                                }
-                                else {
+                                } else {
                                     int_ans -= Integer.parseInt(operands[i]);
                                 }
                             }
-                        }
-                        else
-                        {
-                            if (i == 0)
-                            {
+                        } else {
+                            if (i == 0) {
                                 if (operands[i].contains("n")) {
                                     decimal_ans = BigDecimal.valueOf(-Double.parseDouble(operands[i]));
-                                }
-                                else {
+                                } else {
                                     decimal_ans = BigDecimal.valueOf(Double.parseDouble(operands[i]));
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 if (operands[i].contains("n")) {
                                     decimal_ans = decimal_ans.subtract(BigDecimal.valueOf(-Double.parseDouble(operands[i])));
-                                }
-                                else {
+                                } else {
                                     decimal_ans = decimal_ans.subtract(BigDecimal.valueOf(Double.parseDouble(operands[i])));
                                 }
                             }
@@ -198,8 +170,7 @@ public class Mathematics {
                         System.out.println("群消息发送失败");
                     }
                 }
-            }
-            else if (formula.contains("*")) {
+            } else if (formula.contains("*")) {
                 operands = formula.split("\\*");
                 try {
                     for (String number : operands) {
@@ -208,46 +179,32 @@ public class Mathematics {
                             break;
                         }
                     }
-                    for (int i = 0; i < operands.length; i++)
-                    {
-                        if (is_int)
-                        {
-                            if (i == 0)
-                            {
+                    for (int i = 0; i < operands.length; i++) {
+                        if (is_int) {
+                            if (i == 0) {
                                 if (operands[i].contains("n")) {
                                     int_ans = -Integer.parseInt(operands[i]);
-                                }
-                                else {
+                                } else {
                                     int_ans = Integer.parseInt(operands[i]);
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 if (operands[i].contains("n")) {
                                     int_ans *= -Integer.parseInt(operands[i]);
-                                }
-                                else {
+                                } else {
                                     int_ans *= Integer.parseInt(operands[i]);
                                 }
                             }
-                        }
-                        else
-                        {
-                            if (i == 0)
-                            {
+                        } else {
+                            if (i == 0) {
                                 if (operands[i].contains("n")) {
                                     decimal_ans = BigDecimal.valueOf(-Double.parseDouble(operands[i]));
-                                }
-                                else {
+                                } else {
                                     decimal_ans = BigDecimal.valueOf(Double.parseDouble(operands[i]));
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 if (operands[i].contains("n")) {
                                     decimal_ans = decimal_ans.multiply(BigDecimal.valueOf(-Double.parseDouble(operands[i])));
-                                }
-                                else {
+                                } else {
                                     decimal_ans = decimal_ans.multiply(BigDecimal.valueOf(Double.parseDouble(operands[i])));
                                 }
                             }
@@ -273,8 +230,7 @@ public class Mathematics {
                         System.out.println("群消息发送失败");
                     }
                 }
-            }
-            else if (formula.contains("/")) {
+            } else if (formula.contains("/")) {
                 operands = formula.split("/");
                 try {
                     for (String number : operands) {
@@ -283,46 +239,32 @@ public class Mathematics {
                             break;
                         }
                     }
-                    for (int i = 0; i < operands.length; i++)
-                    {
-                        if (is_int)
-                        {
-                            if (i == 0)
-                            {
+                    for (int i = 0; i < operands.length; i++) {
+                        if (is_int) {
+                            if (i == 0) {
                                 if (operands[i].contains("n")) {
                                     int_ans = -Integer.parseInt(operands[i]);
-                                }
-                                else {
+                                } else {
                                     int_ans = Integer.parseInt(operands[i]);
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 if (operands[i].contains("n")) {
                                     int_ans /= -Integer.parseInt(operands[i]);
-                                }
-                                else {
+                                } else {
                                     int_ans /= Integer.parseInt(operands[i]);
                                 }
                             }
-                        }
-                        else
-                        {
-                            if (i == 0)
-                            {
+                        } else {
+                            if (i == 0) {
                                 if (operands[i].contains("n")) {
                                     decimal_ans = BigDecimal.valueOf(-Double.parseDouble(operands[i]));
-                                }
-                                else {
+                                } else {
                                     decimal_ans = BigDecimal.valueOf(Double.parseDouble(operands[i]));
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 if (operands[i].contains("n")) {
                                     decimal_ans = decimal_ans.divide(BigDecimal.valueOf(-Double.parseDouble(operands[i])));
-                                }
-                                else {
+                                } else {
                                     decimal_ans = decimal_ans.divide(BigDecimal.valueOf(Double.parseDouble(operands[i])));
                                 }
                             }
@@ -348,60 +290,42 @@ public class Mathematics {
                         System.out.println("群消息发送失败");
                     }
                 }
-            }
-            else if (formula.contains("^")) {
+            } else if (formula.contains("^")) {
                 operands = formula.split("\\^");
                 try {
                     for (String number : operands) {
                         if (!number.contains("n") && Double.parseDouble(number) % 1 != 0) {
                             is_int = false;
                             break;
-                        }
-                        else if (operands[0].contains("n")) {
+                        } else if (operands[0].contains("n")) {
                             negative = true;
-                        }
-                        else if (operands[1].contains("n")) {
+                        } else if (operands[1].contains("n")) {
                             negative = true;
                             is_int = false;
                             break;
                         }
                     }
-                    for (int i = 0; i < operands.length; i++)
-                    {
-                        if (is_int)
-                        {
-                            if (i == 0)
-                            {
+                    for (int i = 0; i < operands.length; i++) {
+                        if (is_int) {
+                            if (i == 0) {
                                 if (!negative) {
                                     int_ans = Integer.parseInt(operands[i]);
-                                }
-                                else {
+                                } else {
                                     int_ans = -Integer.parseInt(operands[i]);
                                 }
-                            }
-                            else
-                            {
+                            } else {
                                 int_ans = (long) Math.pow(int_ans, Integer.parseInt(operands[i]));
                             }
-                        }
-                        else if (negative) {
-                            if (i == 0)
-                            {
+                        } else if (negative) {
+                            if (i == 0) {
                                 double_ans = Double.parseDouble(operands[i].replace("n", ""));
-                            }
-                            else
-                            {
+                            } else {
                                 double_ans = Math.pow(double_ans, -Integer.parseInt(operands[i].replace("n", "")));
                             }
-                        }
-                        else
-                        {
-                            if (i == 0)
-                            {
+                        } else {
+                            if (i == 0) {
                                 decimal_ans = BigDecimal.valueOf(Double.parseDouble(operands[i]));
-                            }
-                            else
-                            {
+                            } else {
                                 decimal_ans = BigDecimal.valueOf(Math.pow(decimal_ans.doubleValue(), Double.parseDouble(operands[i])));
                             }
                         }
@@ -428,7 +352,7 @@ public class Mathematics {
                 }
             }
             // 三角函数运算
-            else if (formula.startsWith("sin"))  {
+            else if (formula.startsWith("sin")) {
                 try {
                     operand = Double.parseDouble(formula.split("sin")[0]);
                     decimal_ans = BigDecimal.valueOf(Math.sin(operand * Math.PI / 180));
@@ -444,8 +368,7 @@ public class Mathematics {
                         System.out.println("群消息发送失败");
                     }
                 }
-            }
-            else if (formula.startsWith("cos"))  {
+            } else if (formula.startsWith("cos")) {
                 try {
                     operand = Double.parseDouble(formula.split("cos")[1]);
                     decimal_ans = BigDecimal.valueOf(Math.cos(operand * Math.PI / 180));
@@ -461,8 +384,7 @@ public class Mathematics {
                         System.out.println("群消息发送失败");
                     }
                 }
-            }
-            else if (formula.startsWith("tan"))  {
+            } else if (formula.startsWith("tan")) {
                 try {
                     operand = Double.parseDouble(formula.split("tan")[1]);
                     decimal_ans = BigDecimal.valueOf(Math.tan(operand * Math.PI / 180));
@@ -478,8 +400,7 @@ public class Mathematics {
                         System.out.println("群消息发送失败");
                     }
                 }
-            }
-            else if (formula.startsWith("cot"))  {
+            } else if (formula.startsWith("cot")) {
                 try {
                     operand = Double.parseDouble(formula.split("cot")[1]);
                     decimal_ans = BigDecimal.valueOf(1 / Math.tan(operand * Math.PI / 180));

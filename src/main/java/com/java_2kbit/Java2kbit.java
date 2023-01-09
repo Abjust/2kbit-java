@@ -1,4 +1,4 @@
-// 2kbot Java Edition，2kbot的Java分支版本
+// 2kbit Java Edition，2kbit的Java分支版本
 // Copyright(C) 2022 Abjust 版权所有。
 
 // 本程序是自由软件：你可以根据自由软件基金会发布的GNU Affero通用公共许可证的条款，即许可证的第3版或（您选择的）任何后来的版本重新发布它和/或修改它。。
@@ -7,22 +7,25 @@
 
 // 您应该已经收到了一份GNU Affero通用公共许可证的副本。 如果没有，请参见<https://www.gnu.org/licenses/>。
 
-// 致所有构建及修改2kbot代码片段的用户：作者（Abjust）并不承担构建2kbot代码片段（包括修改过的版本）所产生的一切风险，但是用户有权在2kbot的GitHub项目页提出issue，并有权在代码片段修复这些问题后获取这些更新，但是，作者不会对修改过的代码版本做质量保证，也没有义务修正在修改过的代码片段中存在的任何缺陷。
+// 致所有构建及修改2kbit代码片段的用户：作者（Abjust）并不承担构建2kbit代码片段（包括修改过的版本）所产生的一切风险，但是用户有权在2kbit的GitHub项目页提出issue，并有权在代码片段修复这些问题后获取这些更新，但是，作者不会对修改过的代码版本做质量保证，也没有义务修正在修改过的代码片段中存在的任何缺陷。
 
-package com.java_2kbot;
+package com.java_2kbit;
 
 import net.mamoe.mirai.console.plugin.jvm.JavaPlugin;
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescriptionBuilder;
 import net.mamoe.mirai.event.GlobalEventChannel;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 
-public final class Java2kbot extends JavaPlugin {
-    public static final Java2kbot INSTANCE = new Java2kbot();
+public final class Java2kbit extends JavaPlugin {
+    public static final Java2kbit INSTANCE = new Java2kbit();
 
-    public Java2kbot() {
-        super(new JvmPluginDescriptionBuilder("com.java_2kbot", "1.0.8")
-                .name("2kbot Java Edition")
+    public Java2kbit() {
+        super(new JvmPluginDescriptionBuilder("com.java_2kbit", "1.1.1")
+                .name("2kbit Java Edition")
                 .author("Abjust")
                 .build());
     }
@@ -40,7 +43,7 @@ public final class Java2kbot extends JavaPlugin {
         Global.database_passwd = SetGlobal.MyConfig.INSTANCE.getDatabase_passwd();
         Global.database_name = SetGlobal.MyConfig.INSTANCE.getDatabase_name();
         if (Global.owner_qq == 0 || Global.bot_qq == 0 || Global.database_host.equals("") || Global.database_user.equals("") || Global.database_passwd.equals("") || Global.database_name.equals("")) {
-            getLogger().error("你需要正确配置2kbot-java的配置文件！");
+            getLogger().error("你需要正确配置2kbit-java的配置文件！");
             System.exit(1);
         }
         // 初始化数据库
@@ -52,14 +55,62 @@ public final class Java2kbot extends JavaPlugin {
         try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
             Statement cmd = msc.createStatement();
             String[] sqls = {
-                    String.format("CREATE TABLE IF NOT EXISTS `%s`.`blocklist` (`id` INT NOT NULL AUTO_INCREMENT,`qid` VARCHAR(10) NOT NULL COMMENT 'QQ号',`gid` VARCHAR(10) NOT NULL COMMENT 'Q群号',PRIMARY KEY (`id`));", Global.database_name),
-                    String.format("CREATE TABLE IF NOT EXISTS `%s`.`ops` (`id` INT NOT NULL AUTO_INCREMENT,`qid` VARCHAR(10) NOT NULL COMMENT 'QQ号',`gid` VARCHAR(10) NOT NULL COMMENT 'Q群号',PRIMARY KEY (`id`));", Global.database_name),
-                    String.format("CREATE TABLE IF NOT EXISTS `%s`.`ignores` (`id` INT NOT NULL AUTO_INCREMENT,`qid` VARCHAR(10) NOT NULL COMMENT 'QQ号',`gid` VARCHAR(10) NOT NULL COMMENT 'Q群号',PRIMARY KEY (`id`));", Global.database_name),
-                    String.format("CREATE TABLE IF NOT EXISTS `%s`.`ignores` (`id` INT NOT NULL AUTO_INCREMENT,`qid` VARCHAR(10) NOT NULL COMMENT 'QQ号',`gid` VARCHAR(10) NOT NULL COMMENT 'Q群号',PRIMARY KEY (`id`));", Global.database_name),
-                    String.format("CREATE TABLE IF NOT EXISTS `%s`.`g_blocklist` (`id` INT NOT NULL AUTO_INCREMENT,`qid` VARCHAR(10) NOT NULL COMMENT 'QQ号',PRIMARY KEY (`id`));", Global.database_name),
-                    String.format("CREATE TABLE IF NOT EXISTS `%s`.`g_ops` (`id` INT NOT NULL AUTO_INCREMENT,`qid` VARCHAR(10) NOT NULL COMMENT 'QQ号',PRIMARY KEY (`id`));", Global.database_name),
-                    String.format("CREATE TABLE IF NOT EXISTS `%s`.`g_ignores` (`id` INT NOT NULL AUTO_INCREMENT,`qid` VARCHAR(10) NOT NULL COMMENT 'QQ号',PRIMARY KEY (`id`));", Global.database_name),
-                    String.format("CREATE TABLE IF NOT EXISTS `%s`.`repeatctrl` (`id` INT NOT NULL AUTO_INCREMENT,`qid` VARCHAR(10) NOT NULL COMMENT 'QQ号',`gid` VARCHAR(10) NOT NULL COMMENT 'Q群号',`last_repeat` BIGINT NULL COMMENT '上次复读时间',`last_repeatctrl` BIGINT NULL COMMENT '上次复读控制时间',`repeat_count` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '复读计数',PRIMARY KEY (`id`));", Global.database_name),
+                    String.format("""
+                            CREATE TABLE IF NOT EXISTS `%s`.`blocklist` (
+                            `id` INT NOT NULL AUTO_INCREMENT,
+                            `qid` VARCHAR(10) NOT NULL COMMENT 'QQ号',
+                            `gid` VARCHAR(10) NOT NULL COMMENT 'Q群号',
+                            PRIMARY KEY (`id`));
+                            """, Global.database_name),
+                    String.format("""
+                            CREATE TABLE IF NOT EXISTS `%s`.`ops` (
+                            `id` INT NOT NULL AUTO_INCREMENT,
+                            `qid` VARCHAR(10) NOT NULL COMMENT 'QQ号',
+                            `gid` VARCHAR(10) NOT NULL COMMENT 'Q群号',
+                            PRIMARY KEY (`id`));
+                            """, Global.database_name),
+                    String.format("""
+                            CREATE TABLE IF NOT EXISTS `%s`.`ignores` (
+                            `id` INT NOT NULL AUTO_INCREMENT,
+                            `qid` VARCHAR(10) NOT NULL COMMENT 'QQ号',
+                            `gid` VARCHAR(10) NOT NULL COMMENT 'Q群号',
+                            PRIMARY KEY (`id`));
+                            """, Global.database_name),
+                    String.format("""
+                            CREATE TABLE IF NOT EXISTS `%s`.`ignores` (
+                            `id` INT NOT NULL AUTO_INCREMENT,
+                            `qid` VARCHAR(10) NOT NULL COMMENT 'QQ号',
+                            `gid` VARCHAR(10) NOT NULL COMMENT 'Q群号',
+                            PRIMARY KEY (`id`));
+                            """, Global.database_name),
+                    String.format("""
+                            CREATE TABLE IF NOT EXISTS `%s`.`g_blocklist` (
+                            `id` INT NOT NULL AUTO_INCREMENT,
+                            `qid` VARCHAR(10) NOT NULL COMMENT 'QQ号',
+                            PRIMARY KEY (`id`));
+                            """, Global.database_name),
+                    String.format("""
+                            CREATE TABLE IF NOT EXISTS `%s`.`g_ops` (
+                            `id` INT NOT NULL AUTO_INCREMENT,
+                            `qid` VARCHAR(10) NOT NULL COMMENT 'QQ号',
+                            PRIMARY KEY (`id`));
+                            """, Global.database_name),
+                    String.format("""
+                            CREATE TABLE IF NOT EXISTS `%s`.`g_ignores` (
+                            `id` INT NOT NULL AUTO_INCREMENT,
+                            `qid` VARCHAR(10) NOT NULL COMMENT 'QQ号',
+                            PRIMARY KEY (`id`));
+                            """, Global.database_name),
+                    String.format("""
+                            CREATE TABLE IF NOT EXISTS `%s`.`repeatctrl` (
+                            `id` INT NOT NULL AUTO_INCREMENT,
+                            `qid` VARCHAR(10) NOT NULL COMMENT 'QQ号',
+                            `gid` VARCHAR(10) NOT NULL COMMENT 'Q群号',
+                            `last_repeat` BIGINT NULL COMMENT '上次复读时间',
+                            `last_repeatctrl` BIGINT NULL COMMENT '上次复读控制时间',
+                            `repeat_count` TINYINT UNSIGNED NOT NULL DEFAULT 0 COMMENT '复读计数',
+                            PRIMARY KEY (`id`));
+                            """, Global.database_name),
                     String.format("""
                             CREATE TABLE IF NOT EXISTS `%s`.`bread` (
                             `id` int NOT NULL AUTO_INCREMENT,
@@ -75,7 +126,7 @@ public final class Java2kbot extends JavaPlugin {
                             `last_expfull` bigint NOT NULL DEFAULT '946656000' COMMENT '上次达到经验上限时间',
                             `last_expgain` bigint NOT NULL DEFAULT '946656000' COMMENT '近24小时首次获取经验时间',
                             `last_produce` bigint NOT NULL DEFAULT '946656000' COMMENT '上次完成一轮生产周期时间',
-                             PRIMARY KEY (`id`))
+                            PRIMARY KEY (`id`))
                             """, Global.database_name),
                     String.format("""
                             CREATE TABLE IF NOT EXISTS `%s`.`material` (
@@ -94,18 +145,20 @@ public final class Java2kbot extends JavaPlugin {
             }
             // 更新数据表
             try {
-                cmd.executeUpdate(String.format("""
-                    ALTER TABLE `%s`.`bread`
-                    ADD COLUMN `speed_upgraded` INT NOT NULL DEFAULT 0 COMMENT '生产速度升级次数' AFTER `storage_upgraded`,
-                    ADD COLUMN `output_upgraded` INT NOT NULL DEFAULT 0 COMMENT '产量升级次数' AFTER `speed_upgraded`,
-                    CHANGE COLUMN `bread_diversity` `factory_mode` TINYINT NOT NULL DEFAULT '0' COMMENT '面包厂生产模式' ;
-                    """, Global.database_name));
-            } catch (Exception ignored) { }
+                String sql = String.format("""
+                        ALTER TABLE `%s`.`bread`
+                        ADD COLUMN `speed_upgraded` INT NOT NULL DEFAULT 0 COMMENT '生产速度升级次数' AFTER `storage_upgraded`,
+                        ADD COLUMN `output_upgraded` INT NOT NULL DEFAULT 0 COMMENT '产量升级次数' AFTER `speed_upgraded`,
+                        CHANGE COLUMN `bread_diversity` `factory_mode` TINYINT NOT NULL DEFAULT '0' COMMENT '面包厂生产模式' ;
+                        """, Global.database_name);
+                cmd.executeUpdate(sql);
+            } catch (Exception ignored) {
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
         // 启动提示
-        getLogger().info("2kbot-java已加载！");
+        getLogger().info("2kbit-java已加载！");
         // 注册监听器
         GlobalEventChannel.INSTANCE.registerListenerHost(new BotMain());
         // 运行面包厂生产任务

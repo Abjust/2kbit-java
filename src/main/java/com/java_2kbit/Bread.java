@@ -1,4 +1,4 @@
-// 2kbot Java Edition，2kbot的Java分支版本
+// 2kbit Java Edition，2kbit的Java分支版本
 // Copyright(C) 2022 Abjust 版权所有。
 
 // 本程序是自由软件：你可以根据自由软件基金会发布的GNU Affero通用公共许可证的条款，即许可证的第3版或（您选择的）任何后来的版本重新发布它和/或修改它。。
@@ -7,33 +7,38 @@
 
 // 您应该已经收到了一份GNU Affero通用公共许可证的副本。 如果没有，请参见<https://www.gnu.org/licenses/>。
 
-// 致所有构建及修改2kbot代码片段的用户：作者（Abjust）并不承担构建2kbot代码片段（包括修改过的版本）所产生的一切风险，但是用户有权在2kbot的GitHub项目页提出issue，并有权在代码片段修复这些问题后获取这些更新，但是，作者不会对修改过的代码版本做质量保证，也没有义务修正在修改过的代码片段中存在的任何缺陷。
+// 致所有构建及修改2kbit代码片段的用户：作者（Abjust）并不承担构建2kbit代码片段（包括修改过的版本）所产生的一切风险，但是用户有权在2kbit的GitHub项目页提出issue，并有权在代码片段修复这些问题后获取这些更新，但是，作者不会对修改过的代码版本做质量保证，也没有义务修正在修改过的代码片段中存在的任何缺陷。
 
-package com.java_2kbot;
-
-import java.sql.*;
-import java.time.Instant;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Random;
+package com.java_2kbit;
 
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.message.data.At;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
 
+import java.sql.*;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Random;
+
 public class Bread {
     public static final int breadfactory_maxlevel = 5;
+
     // 建造面包厂
     public static void BuildFactory(long group) {
         try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
-            Statement cmd = msc.createStatement();
-            String sql = String.format("SELECT COUNT(*) gid FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group);
-            ResultSet rs = cmd.executeQuery(sql);
+            PreparedStatement cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = ?;", Global.database_name));
+            cmd.setString(1, String.valueOf(group));
+            ResultSet rs = cmd.executeQuery();
             if (!rs.isBeforeFirst()) {
-                cmd.executeUpdate(String.format("INSERT INTO `%s`.`bread` (gid) VALUES (%s);", Global.database_name, group));
-                cmd.executeUpdate(String.format("INSERT INTO `%s`.`material` (gid) VALUES (%s);", Global.database_name, group));
+                cmd = msc.prepareStatement(String.format("INSERT INTO `%s`.`bread` (gid) VALUES (?);", Global.database_name));
+                cmd.setString(1, String.valueOf(group));
+                cmd.executeUpdate();
+                cmd = msc.prepareStatement(String.format("INSERT INTO `%s`.`material` (gid) VALUES (?);", Global.database_name));
+                cmd.setString(1, String.valueOf(group));
+                cmd.executeUpdate();
                 try {
                     Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("成功为本群建造面包厂！");
                 } catch (Exception ex) {
@@ -54,17 +59,21 @@ public class Bread {
     // 给2kbot面包
     public static void Give(long group, long executor, int number) {
         try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
-            PreparedStatement cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group));
+            PreparedStatement cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = ?;", Global.database_name));
+            cmd.setString(1, String.valueOf(group));
             ResultSet rs = cmd.executeQuery();
             try {
                 while (rs.next()) {
                     if (rs.getInt("factory_mode") == 0) {
                         if (number >= 1 && number + rs.getInt("breads") <= (int) (64 * Math.pow(4, rs.getInt("factory_level") - 1) * Math.pow(2, rs.getInt("storage_upgraded")))) {
                             try (Connection msc1 = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
-                                Statement cmd1 = msc1.createStatement();
-                                cmd1.executeUpdate(String.format("UPDATE `%s`.`bread` SET breads = %s WHERE gid = %s;", Global.database_name, rs.getInt("breads") + number, group));
+                                PreparedStatement cmd1 = msc1.prepareStatement(String.format("UPDATE `%s`.`bread` SET breads = ? WHERE gid = ?;", Global.database_name));
+                                cmd1.setInt(1, rs.getInt("breads") + number);
+                                cmd1.setString(2, String.valueOf(group));
+                                cmd1.executeUpdate();
                                 rs.close();
-                                cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group));
+                                cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = ?;", Global.database_name));
+                                cmd.setString(1, String.valueOf(group));
                                 rs = cmd.executeQuery();
                                 while (rs.next()) {
                                     MessageChain messageChain = new MessageChainBuilder()
@@ -116,7 +125,8 @@ public class Bread {
     // 给我面包
     public static void Get(long group, long executor, int number) {
         try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
-            PreparedStatement cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group));
+            PreparedStatement cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = ?;", Global.database_name));
+            cmd.setString(1, String.valueOf(group));
             ResultSet rs = cmd.executeQuery();
             try {
                 while (rs.next()) {
@@ -154,8 +164,10 @@ public class Bread {
                                             .append(text)
                                             .build();
                                     try (Connection msc1 = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
-                                        Statement cmd1 = msc1.createStatement();
-                                        cmd1.executeUpdate(String.format("UPDATE `%s`.`bread` SET breads = %s WHERE gid = %s;", Global.database_name, rs.getInt("breads") - number, group));
+                                        PreparedStatement cmd1 = msc1.prepareStatement(String.format("UPDATE `%s`.`bread` SET breads = ? WHERE gid = ?;", Global.database_name));
+                                        cmd1.setInt(1, rs.getInt("breads") - number);
+                                        cmd1.setString(2, String.valueOf(group));
+                                        cmd1.executeUpdate();
                                         try {
                                             Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(messageChain);
                                         } catch (Exception ex) {
@@ -174,8 +186,10 @@ public class Bread {
                             } else {
                                 if (number >= 1) {
                                     try (Connection msc1 = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
-                                        Statement cmd1 = msc1.createStatement();
-                                        cmd1.executeUpdate(String.format("UPDATE `%s`.`bread` SET breads = %s WHERE gid = %s;", Global.database_name, rs.getInt("breads") - number, group));
+                                        PreparedStatement cmd1 = msc1.prepareStatement(String.format("UPDATE `%s`.`bread` SET breads = ? WHERE gid = ?;", Global.database_name));
+                                        cmd1.setInt(1, rs.getInt("breads") - number);
+                                        cmd1.setString(2, String.valueOf(group));
+                                        cmd1.executeUpdate();
                                         MessageChain messageChain = new MessageChainBuilder()
                                                 .append(new At(executor))
                                                 .append(String.format(" 🍞*%s", number))
@@ -238,7 +252,8 @@ public class Bread {
     // 查询面包厂信息
     public static void Query(long group, long executor) {
         try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
-            PreparedStatement cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`material` WHERE gid = %s;", Global.database_name, group));
+            PreparedStatement cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`material` WHERE gid = ?;", Global.database_name));
+            cmd.setString(1, String.valueOf(group));
             ResultSet rs = cmd.executeQuery();
             try {
                 while (rs.next()) {
@@ -246,7 +261,8 @@ public class Bread {
                     int egg = rs.getInt("egg");
                     int yeast = rs.getInt("yeast");
                     rs.close();
-                    cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group));
+                    cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = ?;", Global.database_name));
+                    cmd.setString(1, String.valueOf(group));
                     rs = cmd.executeQuery();
                     while (rs.next()) {
                         String mode = switch (rs.getInt("factory_mode")) {
@@ -286,52 +302,52 @@ public class Bread {
                                             rs.getInt("output_upgraded"),
                                             rs.getInt("factory_exp"),
                                             rs.getInt("exp_gained_today"),
-                                            (int)(300 * Math.pow(2, rs.getInt("factory_level") - 1)),
+                                            (int) (300 * Math.pow(2, rs.getInt("factory_level") - 1)),
                                             mode,
-                                            (int)(64 * Math.pow(4, rs.getInt("factory_level") - 1)) * Math.pow(2, rs.getInt("storage_upgraded")),
+                                            (int) (64 * Math.pow(4, rs.getInt("factory_level") - 1)) * Math.pow(2, rs.getInt("storage_upgraded")),
                                             300 - (20 * (rs.getInt("factory_level") - 1)) - (10 * (rs.getInt("speed_upgraded"))),
-                                            (int)Math.pow(4, rs.getInt("factory_level")) * (int)Math.pow(2, rs.getInt("output_upgraded")),
+                                            (int) Math.pow(4, rs.getInt("factory_level")) * (int) Math.pow(2, rs.getInt("output_upgraded")),
                                             flour,
                                             egg,
                                             yeast,
                                             rs.getInt("breads"),
-                                            (int)(64 * Math.pow(4, rs.getInt("factory_level") - 1) * Math.pow(2, rs.getInt("storage_upgraded")))))
+                                            (int) (64 * Math.pow(4, rs.getInt("factory_level") - 1) * Math.pow(2, rs.getInt("storage_upgraded")))))
                                     .build();
                         } else {
                             messageChain = new MessageChainBuilder()
                                     .append(new At(executor))
                                     .append(String.format("""
-                                            \n
-                                            本群 (%s) 面包厂信息如下：
-                                            -----面包厂属性-----
-                                            面包厂等级：%s / %s 级
-                                            面包厂经验：%s / %s XP
-                                            今日已获得经验：%s / %s XP
-                                            生产（供应）模式：%s
-                                            -----面包厂配置-----
-                                            面包库存上限：%s 块
-                                            生产周期：%s 秒
-                                            每周期最大产量：%s 块
-                                            -----物品库存-----
-                                            现有原材料：%s 份面粉、%s 份鸡蛋、%s 份酵母
-                                            现有面包：%s / %s 块
-                                            """,
+                                                    \n
+                                                    本群 (%s) 面包厂信息如下：
+                                                    -----面包厂属性-----
+                                                    面包厂等级：%s / %s 级
+                                                    面包厂经验：%s / %s XP
+                                                    今日已获得经验：%s / %s XP
+                                                    生产（供应）模式：%s
+                                                    -----面包厂配置-----
+                                                    面包库存上限：%s 块
+                                                    生产周期：%s 秒
+                                                    每周期最大产量：%s 块
+                                                    -----物品库存-----
+                                                    现有原材料：%s 份面粉、%s 份鸡蛋、%s 份酵母
+                                                    现有面包：%s / %s 块
+                                                    """,
                                             group,
                                             rs.getInt("factory_level"),
                                             breadfactory_maxlevel,
                                             rs.getInt("factory_exp"),
-                                            (int)(900 * Math.pow(2, rs.getInt("factory_level") - 1)),
+                                            (int) (900 * Math.pow(2, rs.getInt("factory_level") - 1)),
                                             rs.getInt("exp_gained_today"),
-                                            (int)(300 * Math.pow(2, rs.getInt("factory_level") - 1)),
+                                            (int) (300 * Math.pow(2, rs.getInt("factory_level") - 1)),
                                             mode,
-                                            (int)(64 * Math.pow(4, rs.getInt("factory_level") - 1)),
+                                            (int) (64 * Math.pow(4, rs.getInt("factory_level") - 1)),
                                             300 - (20 * (rs.getInt("factory_level") - 1)),
-                                            (int)Math.pow(4, rs.getInt("factory_level")),
+                                            (int) Math.pow(4, rs.getInt("factory_level")),
                                             flour,
                                             egg,
                                             yeast,
                                             rs.getInt("breads"),
-                                            (int)(64 * Math.pow(4, rs.getInt("factory_level") - 1))))
+                                            (int) (64 * Math.pow(4, rs.getInt("factory_level") - 1))))
                                     .build();
                         }
                         try {
@@ -356,31 +372,38 @@ public class Bread {
     // 修改生产模式
     public static void ChangeMode(long group, int mode) {
         try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
-            Statement cmd = msc.createStatement();
-            String sql = String.format("SELECT COUNT(*) gid FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group);
-            ResultSet rs = cmd.executeQuery(sql);
+            PreparedStatement cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = ?;", Global.database_name));
+            cmd.setString(1, String.valueOf(group));
+            ResultSet rs = cmd.executeQuery();
             if (rs.isBeforeFirst()) {
                 rs.close();
-                PreparedStatement cmd1 = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group));
+                PreparedStatement cmd1 = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = ?;", Global.database_name));
+                cmd1.setString(1, String.valueOf(group));
                 rs = cmd1.executeQuery();
                 if (rs.getInt("breads") == 0) {
                     switch (mode) {
                         case 2:
-                            cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET factory_mode = 2 WHERE gid = %s", Global.database_name, group));
+                            cmd = msc.prepareStatement(String.format("UPDATE `%s`.`bread` SET factory_mode = 2 WHERE gid = ?", Global.database_name));
+                            cmd.setString(1, String.valueOf(group));
+                            cmd.executeUpdate();
                             try {
                                 Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("已将本群供应模式修改为：无限供应");
                             } catch (Exception ex) {
                                 System.out.println("群消息发送失败");
                             }
                         case 1:
-                            cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET factory_mode = 1 WHERE gid = %s", Global.database_name, group));
+                            cmd = msc.prepareStatement(String.format("UPDATE `%s`.`bread` SET factory_mode = 1 WHERE gid = ?", Global.database_name));
+                            cmd.setString(1, String.valueOf(group));
+                            cmd.executeUpdate();
                             try {
                                 Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("已将本群供应模式修改为：多样化供应");
                             } catch (Exception ex) {
                                 System.out.println("群消息发送失败");
                             }
                         case 0:
-                            cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET factory_mode = 0 WHERE gid = %s", Global.database_name, group));
+                            cmd = msc.prepareStatement(String.format("UPDATE `%s`.`bread` SET factory_mode = 0 WHERE gid = ?", Global.database_name));
+                            cmd.setString(1, String.valueOf(group));
+                            cmd.executeUpdate();
                             try {
                                 Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("已将本群供应模式修改为：单一化供应");
                             } catch (Exception ex) {
@@ -410,35 +433,36 @@ public class Bread {
     public static void GetExp(long group, long sender) {
         if (Global.blocklist == null || Global.blocklist.contains(String.format("%s_%s", group, sender)) && Global.g_blocklist == null || Global.g_blocklist.contains(Long.toString(sender))) {
             try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
-                Statement cmd = msc.createStatement();
-                String sql = String.format("SELECT COUNT(*) gid FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group);
-                ResultSet rs = cmd.executeQuery(sql);
+                PreparedStatement cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = ?;", Global.database_name));
+                cmd.setString(1, String.valueOf(group));
+                ResultSet rs = cmd.executeQuery();
                 if (rs.isBeforeFirst()) {
                     rs.close();
-                    PreparedStatement cmd1 = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group));
+                    PreparedStatement cmd1 = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = ?;", Global.database_name));
+                    cmd1.setString(1, String.valueOf(group));
                     rs = cmd1.executeQuery();
                     while (rs.next()) {
-                        int maxexp_formula = (int) (300 * Math.pow(2, rs.getInt("factory_level") - 1));
+                        int maxexp_formula = (int)(300 * Math.pow(2, rs.getInt("factory_level") - 1));
                         Global.time_now = Instant.now().getEpochSecond();
                         if (Global.time_now - rs.getLong("last_expfull") >= 86400) {
                             if (Global.time_now - rs.getLong("last_expgain") >= 86400) {
-                                cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET exp_gained_today = 0, last_expgain = %s WHERE gid = %s", Global.database_name, Global.time_now, group));
-                                if (rs.getInt("exp_gained_today") <= maxexp_formula) {
-                                    cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET factory_exp = %s, exp_gained_today = %s WHERE gid = %s;", Global.database_name, rs.getInt("factory_exp") + 1, rs.getInt("exp_gained_today") + 1, group));
-                                } else {
-                                    cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET last_expfull = %s, exp_gained_today = 0 WHERE gid =%s;", Global.database_name, Global.time_now, group));
-                                    try {
-                                        Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("本群已达到今日获取经验上限！");
-                                    } catch (Exception ex) {
-                                        System.out.println("群消息发送失败");
-                                    }
-                                }
+                                cmd = msc.prepareStatement(String.format("UPDATE `%s`.`bread` SET last_expgain = ?, factory_exp = ?, exp_gained_today = 1 WHERE gid = ?;", Global.database_name));
+                                cmd.setLong(1, Global.time_now);
+                                cmd.setInt(2, rs.getInt("factory_exp") + 1);
+                                cmd.setString(3, String.valueOf(group));
+                                cmd.executeUpdate();
                             } else {
-                                cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET exp_gained_today = 0, last_expgain = %s WHERE gid = %s", Global.database_name, Global.time_now, group));
                                 if (rs.getInt("exp_gained_today") <= maxexp_formula) {
-                                    cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET factory_exp = %s, exp_gained_today = %s WHERE gid = %s;", Global.database_name, rs.getInt("factory_exp") + 1, rs.getInt("exp_gained_today") + 1, group));
+                                    cmd = msc.prepareStatement(String.format("UPDATE `%s`.`bread` SET factory_exp = ?, exp_gained_today = ? WHERE gid = ?;", Global.database_name));
+                                    cmd.setInt(1, rs.getInt("factory_exp") + 1);
+                                    cmd.setInt(2, rs.getInt("exp_gained_today") + 1);
+                                    cmd.setString(3, String.valueOf(group));
+                                    cmd.executeUpdate();
                                 } else {
-                                    cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET last_expfull = %s, exp_gained_today = 0 WHERE gid =%s;", Global.database_name, Global.time_now, group));
+                                    cmd = msc.prepareStatement(String.format("UPDATE `%s`.`bread` SET last_expfull = ?, exp_gained_today = 0 WHERE gid =?;", Global.database_name));
+                                    cmd.setLong(1, Global.time_now);
+                                    cmd.setString(2, String.valueOf(group));
+                                    cmd.executeUpdate();
                                     try {
                                         Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage("本群已达到今日获取经验上限！");
                                     } catch (Exception ex) {
@@ -464,21 +488,28 @@ public class Bread {
     // 升级工厂
     public static void UpgradeFactory(long group) {
         try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
-            Statement cmd = msc.createStatement();
-            String sql = String.format("SELECT COUNT(*) gid FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group);
-            ResultSet rs = cmd.executeQuery(sql);
+            PreparedStatement cmd = msc.prepareStatement(String.format("SELECT * gid FROM `%s`.`bread` WHERE gid = ?;", Global.database_name));
+            cmd.setString(1, String.valueOf(group));
+            ResultSet rs = cmd.executeQuery();
             if (rs.isBeforeFirst()) {
                 rs.close();
-                PreparedStatement cmd1 = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group));
+                PreparedStatement cmd1 = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = ?;", Global.database_name));
+                cmd1.setString(1, String.valueOf(group));
                 rs = cmd1.executeQuery();
                 while (rs.next()) {
-                    int exp_formula = (int) (900 * Math.pow(2, rs.getInt("factory_level") - 1));
+                    int exp_formula = (int)(900 * Math.pow(2, rs.getInt("factory_level") - 1));
                     if (rs.getInt("factory_level") < breadfactory_maxlevel) {
                         if (rs.getInt("factory_exp") >= exp_formula) {
-                            cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET factory_level = %s, factory_exp = %s WHERE gid = %s", Global.database_name, rs.getInt("factory_level") + 1, rs.getInt("factory_level") - exp_formula, group));
+                            cmd.executeUpdate();
                             rs.close();
-                            cmd1 = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group));
-                            rs = cmd1.executeQuery();
+                            cmd1 = msc.prepareStatement(String.format("UPDATE `%s`.`bread` SET factory_level = ?, factory_exp = ? WHERE gid = ?;", Global.database_name));
+                            cmd1.setInt(1, rs.getInt("factory_level") + 1);
+                            cmd1.setInt(2, rs.getInt("factory_level") - exp_formula);
+                            cmd1.setString(3, String.valueOf(group));
+                            cmd1.executeUpdate();
+                            cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = ?;", Global.database_name));
+                            cmd.setString(1, String.valueOf(group));
+                            rs = cmd.executeQuery();
                             try {
                                 Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("恭喜，本群面包厂升级成功辣！现在面包厂等级是 %s 级", rs.getInt("factory_level")));
                             } catch (Exception ex) {
@@ -514,24 +545,30 @@ public class Bread {
     // 升级库存
     public static void UpgradeStorage(long group) {
         try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
-            Statement cmd = msc.createStatement();
-            String sql = String.format("SELECT COUNT(*) gid FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group);
-            ResultSet rs = cmd.executeQuery(sql);
+            PreparedStatement cmd = msc.prepareStatement(String.format("SELECT * gid FROM `%s`.`bread` WHERE gid = ?;", Global.database_name));
+            cmd.setString(1, String.valueOf(group));
+            ResultSet rs = cmd.executeQuery();
             if (rs.isBeforeFirst()) {
                 rs.close();
-                PreparedStatement cmd1 = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group));
+                PreparedStatement cmd1 = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = ?;", Global.database_name));
+                cmd1.setString(1, String.valueOf(group));
                 rs = cmd1.executeQuery();
                 while (rs.next()) {
                     int exp_formula = (int)(2000 * Math.pow(1.28, rs.getInt("storage_upgraded")));
                     if (rs.getInt("factory_level") == breadfactory_maxlevel) {
                         if (rs.getInt("storage_upgraded") < 16) {
                             if (rs.getInt("factory_exp") >= exp_formula) {
-                                cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET storage_upgraded = %s, factory_exp = %s WHERE gid = %s;", Global.database_name, rs.getInt("storage_upgraded") + 1, rs.getInt("factory_exp") - exp_formula, group));
+                                cmd1 = msc.prepareStatement(String.format("UPDATE `%s`.`bread` SET storage_upgraded = ?, factory_exp = ? WHERE gid = ?;", Global.database_name));
+                                cmd1.setInt(1, rs.getInt("storage_upgraded") + 1);
+                                cmd1.setInt(2, rs.getInt("factory_level") - exp_formula);
+                                cmd1.setString(3, String.valueOf(group));
+                                cmd1.executeUpdate();
                                 rs.close();
-                                cmd1 = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group));
-                                rs = cmd1.executeQuery();
+                                cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = ?;", Global.database_name));
+                                cmd.setString(1, String.valueOf(group));
+                                rs = cmd.executeQuery();
                                 try {
-                                    Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("恭喜，本群面包厂库存升级成功辣！现在面包厂可以储存 %s 块面包", (int) (64 * Math.pow(4, rs.getInt("factory_level") - 1) * Math.pow(2, rs.getInt("storage_upgraded")))));
+                                    Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("恭喜，本群面包厂库存升级成功辣！现在面包厂可以储存 %s 块面包", (int)(64 * Math.pow(4, rs.getInt("factory_level") - 1) * Math.pow(2, rs.getInt("storage_upgraded")))));
                                 } catch (Exception ex) {
                                     System.out.println("群消息发送失败");
                                 }
@@ -568,25 +605,32 @@ public class Bread {
             throw new RuntimeException(e);
         }
     }
+
     // 升级生产速度
     public static void UpgradeSpeed(long group) {
         try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
-            Statement cmd = msc.createStatement();
-            String sql = String.format("SELECT COUNT(*) gid FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group);
-            ResultSet rs = cmd.executeQuery(sql);
+            PreparedStatement cmd = msc.prepareStatement(String.format("SELECT * gid FROM `%s`.`bread` WHERE gid = ?;", Global.database_name));
+            cmd.setString(1, String.valueOf(group));
+            ResultSet rs = cmd.executeQuery();
             if (rs.isBeforeFirst()) {
                 rs.close();
-                PreparedStatement cmd1 = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group));
+                PreparedStatement cmd1 = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = ?;", Global.database_name));
+                cmd1.setString(1, String.valueOf(group));
                 rs = cmd1.executeQuery();
                 while (rs.next()) {
                     int exp_formula = (int)(9600 * Math.pow(1.14, rs.getInt("speed_upgraded")));
                     if (rs.getInt("factory_level") == breadfactory_maxlevel) {
                         if (rs.getInt("speed_upgraded") < 16) {
                             if (rs.getInt("factory_exp") >= exp_formula) {
-                                cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET speed_upgraded = %s, factory_exp = %s WHERE gid = %s;", Global.database_name, rs.getInt("speed_upgraded") + 1, rs.getInt("factory_exp") - exp_formula, group));
+                                cmd1 = msc.prepareStatement(String.format("UPDATE `%s`.`bread` SET speed_upgraded = ?, factory_exp = ? WHERE gid = ?;", Global.database_name));
+                                cmd1.setInt(1, rs.getInt("speed_upgraded") + 1);
+                                cmd1.setInt(2, rs.getInt("factory_level") - exp_formula);
+                                cmd1.setString(3, String.valueOf(group));
+                                cmd1.executeUpdate();
                                 rs.close();
-                                cmd1 = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group));
-                                rs = cmd1.executeQuery();
+                                cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = ?;", Global.database_name));
+                                cmd.setString(1, String.valueOf(group));
+                                rs = cmd.executeQuery();
                                 try {
                                     Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("恭喜，本群面包厂生产速度升级成功辣！现在面包厂的生产周期是 %s 秒", 300 - (20 * (rs.getInt("factory_level") - 1)) - (10 * (rs.getInt("speed_upgraded")))));
                                 } catch (Exception ex) {
@@ -625,27 +669,34 @@ public class Bread {
             throw new RuntimeException(e);
         }
     }
+
     // 升级产量
     public static void UpgradeOutput(long group) {
         try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
-            Statement cmd = msc.createStatement();
-            String sql = String.format("SELECT COUNT(*) gid FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group);
-            ResultSet rs = cmd.executeQuery(sql);
+            PreparedStatement cmd = msc.prepareStatement(String.format("SELECT * gid FROM `%s`.`bread` WHERE gid = ?;", Global.database_name));
+            cmd.setString(1, String.valueOf(group));
+            ResultSet rs = cmd.executeQuery();
             if (rs.isBeforeFirst()) {
                 rs.close();
-                PreparedStatement cmd1 = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group));
+                PreparedStatement cmd1 = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = ?;", Global.database_name));
+                cmd1.setString(1, String.valueOf(group));
                 rs = cmd1.executeQuery();
                 while (rs.next()) {
                     int exp_formula = (int)(4800 * Math.pow(1.21, rs.getInt("output_upgraded")));
                     if (rs.getInt("factory_level") == breadfactory_maxlevel) {
                         if (rs.getInt("output_upgraded") < 16) {
                             if (rs.getInt("factory_exp") >= exp_formula) {
-                                cmd.executeUpdate(String.format("UPDATE `%s`.`bread` SET output_upgraded = %s, factory_exp = %s WHERE gid = %s;", Global.database_name, rs.getInt("output_upgraded") + 1, rs.getInt("factory_exp") - exp_formula, group));
+                                cmd1 = msc.prepareStatement(String.format("UPDATE `%s`.`bread` SET output_upgraded = ?, factory_exp = ? WHERE gid = ?;", Global.database_name));
+                                cmd1.setInt(1, rs.getInt("output_upgraded") + 1);
+                                cmd1.setInt(2, rs.getInt("factory_level") - exp_formula);
+                                cmd1.setString(3, String.valueOf(group));
+                                cmd1.executeUpdate();
                                 rs.close();
-                                cmd1 = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = %s;", Global.database_name, group));
-                                rs = cmd1.executeQuery();
+                                cmd = msc.prepareStatement(String.format("SELECT * FROM `%s`.`bread` WHERE gid = ?;", Global.database_name));
+                                cmd.setString(1, String.valueOf(group));
+                                rs = cmd.executeQuery();
                                 try {
-                                    Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("恭喜，本群面包厂产量升级成功辣！现在面包厂的每周期最大产量是 %s 块面包", (int)Math.pow(4, rs.getInt("factory_level")) * (int)Math.pow(2, rs.getInt("output_upgraded"))));
+                                    Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("恭喜，本群面包厂产量升级成功辣！现在面包厂的每周期最大产量是 %s 块面包", (int) Math.pow(4, rs.getInt("factory_level")) * (int) Math.pow(2, rs.getInt("output_upgraded"))));
                                 } catch (Exception ex) {
                                     System.out.println("群消息发送失败");
                                 }

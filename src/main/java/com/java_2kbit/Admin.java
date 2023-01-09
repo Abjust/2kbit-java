@@ -1,4 +1,4 @@
-// 2kbot Java Edition，2kbot的Java分支版本
+// 2kbit Java Edition，2kbit的Java分支版本
 // Copyright(C) 2022 Abjust 版权所有。
 
 // 本程序是自由软件：你可以根据自由软件基金会发布的GNU Affero通用公共许可证的条款，即许可证的第3版或（您选择的）任何后来的版本重新发布它和/或修改它。。
@@ -7,13 +7,14 @@
 
 // 您应该已经收到了一份GNU Affero通用公共许可证的副本。 如果没有，请参见<https://www.gnu.org/licenses/>。
 
-// 致所有构建及修改2kbot代码片段的用户：作者（Abjust）并不承担构建2kbot代码片段（包括修改过的版本）所产生的一切风险，但是用户有权在2kbot的GitHub项目页提出issue，并有权在代码片段修复这些问题后获取这些更新，但是，作者不会对修改过的代码版本做质量保证，也没有义务修正在修改过的代码片段中存在的任何缺陷。
+// 致所有构建及修改2kbit代码片段的用户：作者（Abjust）并不承担构建2kbit代码片段（包括修改过的版本）所产生的一切风险，但是用户有权在2kbit的GitHub项目页提出issue，并有权在代码片段修复这些问题后获取这些更新，但是，作者不会对修改过的代码版本做质量保证，也没有义务修正在修改过的代码片段中存在的任何缺陷。
 
-package com.java_2kbot;
+package com.java_2kbit;
 
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.contact.ContactList;
 import net.mamoe.mirai.contact.NormalMember;
+
 import java.sql.*;
 import java.util.Objects;
 
@@ -136,8 +137,10 @@ public class Admin {
             if (Global.ops != null && !Global.ops.contains(String.format("%s_%s", group, victim)) || Global.g_ops != null && !Global.g_ops.contains(Long.toString(victim))) {
                 if (!Global.blocklist.contains(Long.toString(victim))) {
                     try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
-                        Statement cmd = msc.createStatement();
-                        cmd.executeUpdate(String.format("INSERT INTO `%s`.`blocklist` (qid,gid) VALUES (%s,%s);", Global.database_name, victim, group));
+                        PreparedStatement cmd = msc.prepareStatement(String.format("INSERT INTO `%s`.`blocklist` (qid,gid) VALUES (?,?);", Global.database_name));
+                        cmd.setString(1, String.valueOf(executor));
+                        cmd.setString(2, String.valueOf(group));
+                        cmd.executeUpdate();
                         try {
                             Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("已将 %s 加入本群黑名单", victim));
                         } catch (Exception ex1) {
@@ -190,8 +193,10 @@ public class Admin {
         if (Global.ops != null && Global.ops.contains(String.format("%s_%s", group, executor)) || Global.g_ops != null && Global.g_ops.contains(Long.toString(executor))) {
             if (Global.blocklist.contains(Long.toString(victim))) {
                 try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
-                    Statement cmd = msc.createStatement();
-                    cmd.executeUpdate(String.format("DELETE FROM `%s`.`blocklist` WHERE qid = %s AND gid = %s;", Global.database_name, victim, group));
+                    PreparedStatement cmd = msc.prepareStatement(String.format("DELETE FROM `%s`.`blocklist` WHERE qid = ? AND gid = ?;", Global.database_name));
+                    cmd.setString(1, String.valueOf(executor));
+                    cmd.setString(2, String.valueOf(group));
+                    cmd.executeUpdate();
                     try {
                         Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("已将 %s 移出本群黑名单", victim));
                     } catch (Exception ex1) {
@@ -229,8 +234,9 @@ public class Admin {
             if (!Global.g_ops.contains(Long.toString(victim))) {
                 if (!Global.g_blocklist.contains(Long.toString(victim))) {
                     try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
-                        Statement cmd = msc.createStatement();
-                        cmd.executeUpdate(String.format("INSERT INTO `%s`.`g_blocklist` (qid) VALUES (%s);", Global.database_name, victim));
+                        PreparedStatement cmd = msc.prepareStatement(String.format("INSERT INTO `%s`.`g_blocklist` (qid) VALUES (?);", Global.database_name));
+                        cmd.setString(1, String.valueOf(executor));
+                        cmd.executeUpdate();
                         try {
                             Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("已将 %s 加入全局黑名单", victim));
                         } catch (Exception ex1) {
@@ -274,8 +280,9 @@ public class Admin {
         if (Global.g_ops != null && Global.g_ops.contains(Long.toString(executor))) {
             if (Global.g_blocklist.contains(Long.toString(victim))) {
                 try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
-                    Statement cmd = msc.createStatement();
-                    cmd.executeUpdate(String.format("DELETE FROM `%s`.`g_blocklist` WHERE qid = %s;", Global.database_name, victim));
+                    PreparedStatement cmd = msc.prepareStatement(String.format("DELETE FROM `%s`.`g_blocklist` WHERE qid = ?;", Global.database_name));
+                    cmd.setString(1, String.valueOf(executor));
+                    cmd.executeUpdate();
                     try {
                         Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("已将 %s 移出全局黑名单", victim));
                     } catch (Exception ex1) {
@@ -312,8 +319,10 @@ public class Admin {
         if (permission.equals("OWNER") || Global.ops != null && Global.ops.contains(String.format("%s_%s", group, executor)) || Global.g_ops != null && Global.g_ops.contains(Long.toString(executor))) {
             if (Global.ops == null || !Global.ops.contains(String.format("%s_%s", group, victim))) {
                 try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
-                    Statement cmd = msc.createStatement();
-                    cmd.executeUpdate(String.format("INSERT INTO `%s`.`ops` (qid,gid) VALUES (%s,%s);", Global.database_name, victim, group));
+                    PreparedStatement cmd = msc.prepareStatement(String.format("INSERT INTO `%s`.`ops` (qid,gid) VALUES (?,?);", Global.database_name));
+                    cmd.setString(1, String.valueOf(executor));
+                    cmd.setString(2, String.valueOf(group));
+                    cmd.executeUpdate();
                     try {
                         Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("已将 %s 设置为本群机器人管理员", victim));
                     } catch (Exception ex1) {
@@ -352,8 +361,10 @@ public class Admin {
             if (Global.ops != null && Global.ops.contains(String.format("%s_%s", group, victim))) {
                 if (victim != group_owner) {
                     try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
-                        Statement cmd = msc.createStatement();
-                        cmd.executeUpdate(String.format("DELETE FROM `%s`.`ops` WHERE qid = %s AND gid = %s;", Global.database_name, victim, group));
+                        PreparedStatement cmd = msc.prepareStatement(String.format("DELETE FROM `%s`.`ops` WHERE qid = ? AND gid = ?;", Global.database_name));
+                        cmd.setString(1, String.valueOf(executor));
+                        cmd.setString(2, String.valueOf(group));
+                        cmd.executeUpdate();
                         try {
                             Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("已取消 %s 在本群的机器人管理员权限", victim));
                         } catch (Exception ex1) {
@@ -391,8 +402,9 @@ public class Admin {
         if (executor == Global.owner_qq || Global.g_ops != null && Global.g_ops.contains(Long.toString(executor))) {
             if (Global.g_ops == null || !Global.g_ops.contains(Long.toString(victim))) {
                 try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
-                    Statement cmd = msc.createStatement();
-                    cmd.executeUpdate(String.format("INSERT INTO `%s`.`g_ops` (qid) VALUES (%s);", Global.database_name, victim));
+                    PreparedStatement cmd = msc.prepareStatement(String.format("INSERT INTO `%s`.`g_ops` (qid) VALUES (?);", Global.database_name));
+                    cmd.setString(1, String.valueOf(executor));
+                    cmd.executeUpdate();
                     try {
                         Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("已将 %s 设置为全局机器人管理员", victim));
                     } catch (Exception ex1) {
@@ -424,8 +436,9 @@ public class Admin {
             if (Global.g_ops.contains(Long.toString(victim))) {
                 if (victim != Global.owner_qq) {
                     try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
-                        Statement cmd = msc.createStatement();
-                        cmd.executeUpdate(String.format("DELETE FROM `%s`.`g_ops` WHERE qid = %s", Global.database_name, victim));
+                        PreparedStatement cmd = msc.prepareStatement(String.format("DELETE FROM `%s`.`g_ops` WHERE qid = ?", Global.database_name));
+                        cmd.setString(1, String.valueOf(executor));
+                        cmd.executeUpdate();
                         try {
                             Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("已取消 %s 的全局机器人管理员权限", victim));
                         } catch (Exception ex1) {
@@ -463,8 +476,10 @@ public class Admin {
         if (Global.ops != null && Global.ops.contains(String.format("%s_%s", group, executor)) || Global.g_ops != null && Global.g_ops.contains(Long.toString(executor))) {
             if (Global.ignores == null || !Global.ignores.contains(String.format("%s_%s", group, victim))) {
                 try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
-                    Statement cmd = msc.createStatement();
-                    cmd.executeUpdate(String.format("INSERT INTO `%s`.`ignores` (qid,gid) VALUES (%s,%s);", Global.database_name, victim, group));
+                    PreparedStatement cmd = msc.prepareStatement(String.format("INSERT INTO `%s`.`ignores` (qid,gid) VALUES (?,?);", Global.database_name));
+                    cmd.setString(1, String.valueOf(executor));
+                    cmd.setString(2, String.valueOf(group));
+                    cmd.executeUpdate();
                     try {
                         Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("已在本群屏蔽 %s 的消息", victim));
                     } catch (Exception ex1) {
@@ -501,8 +516,9 @@ public class Admin {
         if (Global.g_ops != null && Global.g_ops.contains(Long.toString(executor))) {
             if (Global.g_ignores == null || !Global.g_ignores.contains(Long.toString(victim))) {
                 try (Connection msc = DriverManager.getConnection(String.format("jdbc:mysql://%s:3306", Global.database_host), Global.database_user, Global.database_passwd)) {
-                    Statement cmd = msc.createStatement();
-                    cmd.executeUpdate(String.format("INSERT INTO `%s`.`g_ignores` (qid) VALUES (%s);", Global.database_name, victim));
+                    PreparedStatement cmd = msc.prepareStatement(String.format("INSERT INTO `%s`.`g_ignores` (qid) VALUES (?);", Global.database_name));
+                    cmd.setString(1, String.valueOf(executor));
+                    cmd.executeUpdate();
                     try {
                         Objects.requireNonNull(Bot.getInstance(Global.bot_qq).getGroup(group)).sendMessage(String.format("已屏蔽 %s 在所有群的消息", victim));
                     } catch (Exception ex1) {
@@ -575,6 +591,7 @@ public class Admin {
             }
         }
     }
+
     // 禁言自己
     public static void MuteMe(long executor, long group, int minutes) {
         try {

@@ -1,4 +1,4 @@
-// 2kbot Java Edition，2kbot的Java分支版本
+// 2kbit Java Edition，2kbit的Java分支版本
 // Copyright(C) 2022 Abjust 版权所有。
 
 // 本程序是自由软件：你可以根据自由软件基金会发布的GNU Affero通用公共许可证的条款，即许可证的第3版或（您选择的）任何后来的版本重新发布它和/或修改它。。
@@ -7,17 +7,21 @@
 
 // 您应该已经收到了一份GNU Affero通用公共许可证的副本。 如果没有，请参见<https://www.gnu.org/licenses/>。
 
-// 致所有构建及修改2kbot代码片段的用户：作者（Abjust）并不承担构建2kbot代码片段（包括修改过的版本）所产生的一切风险，但是用户有权在2kbot的GitHub项目页提出issue，并有权在代码片段修复这些问题后获取这些更新，但是，作者不会对修改过的代码版本做质量保证，也没有义务修正在修改过的代码片段中存在的任何缺陷。
+// 致所有构建及修改2kbit代码片段的用户：作者（Abjust）并不承担构建2kbit代码片段（包括修改过的版本）所产生的一切风险，但是用户有权在2kbit的GitHub项目页提出issue，并有权在代码片段修复这些问题后获取这些更新，但是，作者不会对修改过的代码版本做质量保证，也没有义务修正在修改过的代码片段中存在的任何缺陷。
 
 
-package com.java_2kbot;
+package com.java_2kbit;
 
 import net.mamoe.mirai.Bot;
 import net.mamoe.mirai.event.EventHandler;
 import net.mamoe.mirai.event.SimpleListenerHost;
 import net.mamoe.mirai.event.events.*;
-import net.mamoe.mirai.message.data.*;
+import net.mamoe.mirai.message.data.At;
+import net.mamoe.mirai.message.data.Image;
+import net.mamoe.mirai.message.data.MessageChain;
+import net.mamoe.mirai.message.data.MessageChainBuilder;
 import net.mamoe.mirai.utils.ExternalResource;
+
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
@@ -31,7 +35,7 @@ public class BotMain extends SimpleListenerHost {
     // 戳一戳效果
     @EventHandler
     private void onEvent(NudgeEvent event) {
-        if (event.getTarget().equals(Global.bot_qq) && event.getSubject().equals("Group")) {
+        if (event.getTarget().getId() == Global.bot_qq && event.getSubject().toString().equals("Group")) {
             Zuan.Execute(0, 0, null, event);
         }
     }
@@ -163,6 +167,7 @@ public class BotMain extends SimpleListenerHost {
             }
         }
     }
+
     // bot对接收群消息的处理
     @EventHandler
     private void onEvent(GroupMessageEvent event) {
@@ -209,8 +214,7 @@ public class BotMain extends SimpleListenerHost {
             // 复读机
             Repeat.Execute(event.getGroup().getId(), event.getSender().getId(), event.getMessage());
             // 数学计算
-            if (s.startsWith("!calc"))
-            {
+            if (s.startsWith("!calc")) {
                 Mathematics.Execute(event.getGroup().getId(), event.getMessage());
             }
             // 发送公告
@@ -705,16 +709,11 @@ public class BotMain extends SimpleListenerHost {
             // 禁言自己
             if (s.startsWith("!muteme")) {
                 String[] text = s.split(" ");
-                if (text.length == 2)
-                {
+                if (text.length == 2) {
                     Admin.MuteMe(event.getSender().getId(), event.getGroup().getId(), Integer.parseInt(text[1]));
-                }
-                else if (text.length == 1)
-                {
+                } else if (text.length == 1) {
                     Admin.MuteMe(event.getSender().getId(), event.getGroup().getId(), 10);
-                }
-                else
-                {
+                } else {
                     try {
                         event.getGroup().sendMessage("参数错误");
                     } catch (Exception e) {
@@ -778,7 +777,7 @@ public class BotMain extends SimpleListenerHost {
                 Random r = new Random();
                 int random = r.nextInt(splashes.size());
                 try {
-                    event.getGroup().sendMessage(String.format("机器人版本：1.1.0-je\n上次更新日期：2023/1/7\n更新内容：同步了2kbot b_23w02b更新的功能修复\n---------\n%s", splashes.get(random)));
+                    event.getGroup().sendMessage(String.format("机器人版本：1.1.1-je\n上次更新日期：2023/1/9\n更新内容：同步了2kbit b_23w03b的更新内容\n---------\n%s", splashes.get(random)));
                 } catch (Exception e) {
                     System.out.println("群消息发送失败");
                 }
@@ -786,7 +785,7 @@ public class BotMain extends SimpleListenerHost {
             // 获取源码
             if (s.equals("源码") || s.equals("获取源码") || s.equals("怎样做这样的机器人")) {
                 try {
-                    event.getGroup().sendMessage("请前往https://github.com/Abjust/2kbot-java获取2kbot Java Edition的源码！");
+                    event.getGroup().sendMessage("请前往https://github.com/Abjust/2kbit-java获取2kbit Java Edition的源码！");
                 } catch (Exception e) {
                     System.out.println("群消息发送失败");
                 }
