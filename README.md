@@ -33,3 +33,7 @@
 因2kbit Java Edition使用到的依赖库执行**AGPLv3**开源协议，按照该开源协议的要求，2kbit Java Edition也将同步执行；所有将2kbit
 Java Edition代码片段投入线上使用的项目，都将需要**开源**并执行**AGPLv3**协议（参照该开源协议的“**网络使用即分发**
 ”原则），谢谢配合！
+
+## 特别鸣谢
+
+1.[JetBrains](https://www.jetbrains.com/)（感谢JetBrains支持2kbit-java作为自由软件的开发事业）
